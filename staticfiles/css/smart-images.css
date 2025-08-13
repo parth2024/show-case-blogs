@@ -1,0 +1,107 @@
+
+
+/* Smart Image Container Styles */
+
+/* Single Image Layout */
+.image-container-single {
+    @apply my-6 w-full;
+}
+
+.image-container-single img {
+    @apply w-full h-auto max-h-96 object-cover rounded-lg shadow-md mx-auto;
+}
+
+/* Gallery Layout (2-3 images) */
+.image-container-gallery {
+    @apply my-6 grid gap-3;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.image-container-gallery img {
+    @apply w-full h-48 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer;
+}
+
+/* Grid Layout (4+ images) */
+.image-container-grid {
+    @apply my-6 grid grid-cols-2 md:grid-cols-3 gap-2;
+}
+
+.image-container-grid img {
+    @apply w-full h-32 object-cover rounded-md shadow-sm hover:shadow-md transition-shadow cursor-pointer;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+    .image-container-gallery {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .image-container-gallery img {
+        @apply h-40;
+    }
+    
+    .image-container-grid {
+        @apply grid-cols-2;
+    }
+    
+    .image-container-single img {
+        @apply max-h-64;
+    }
+}
+
+/* Editor-specific styles (only in admin) */
+.ql-editor .image-container-single,
+.ql-editor .image-container-gallery,
+.ql-editor .image-container-grid {
+    @apply border border-dashed border-gray-300 p-2 rounded-lg;
+    position: relative;
+}
+
+.ql-editor .image-container-single:hover,
+.ql-editor .image-container-gallery:hover,
+.ql-editor .image-container-grid:hover {
+    @apply border-blue-400 bg-blue-50;
+}
+
+/* Add a small label for layout type in editor */
+.ql-editor .image-container-single::before,
+.ql-editor .image-container-gallery::before,
+.ql-editor .image-container-grid::before {
+    content: attr(class);
+    @apply absolute -top-2 left-2 bg-gray-600 text-white text-xs px-2 py-1 rounded;
+    font-size: 10px;
+    z-index: 10;
+}
+
+.ql-editor .image-container-single::before {
+    content: "Single Image";
+}
+
+.ql-editor .image-container-gallery::before {
+    content: "Gallery";
+}
+
+.ql-editor .image-container-grid::before {
+    content: "Grid";
+}
+
+/* Dark mode support */
+.dark .image-container-single img,
+.dark .image-container-gallery img,
+.dark .image-container-grid img {
+    @apply ring-1 ring-gray-700;
+}
+
+.dark .ql-editor .image-container-single:hover,
+.dark .ql-editor .image-container-gallery:hover,
+.dark .ql-editor .image-container-grid:hover {
+    @apply border-blue-500 bg-blue-900/20;
+}
+
+/* Lightbox effect for public view */
+.image-container-single img:hover,
+.image-container-gallery img:hover,
+.image-container-grid img:hover {
+    transform: scale(1.02);
+    transition: transform 0.2s ease-in-out;
+}

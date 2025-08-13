@@ -1,0 +1,39 @@
+/* General styling for a smoother experience */
+body {
+    font-family: 'Radio Canada', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+h1, h2,button {
+    font-family: 'Viga', sans-serif;
+}
+h3, h4, h5, h6 {
+    font-family: 'Radio Canada', sans-serif;
+}
+/* Transition classes for sidebar and main content */
+.transition-all-300 {
+    transition: all 0.3s ease-in-out;
+}
+.transition-width-300 {
+    transition: width 0.3s ease-in-out;
+}
+.transition-margin-300 {
+    transition: margin-left 0.3s ease-in-out;
+}
+/* Custom scrollbar for a cleaner look */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background-color: rgba(139, 92, 246, 0.5); /* primary color with opacity */
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(139, 92, 246, 0.8);
+}

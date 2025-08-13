@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ambassador's Blog - Excellence in Education</title>
+    <meta name="description" content="Welcome to Ambassador's Blog - sharing knowledge, insights, and updates from our educational community. Excellence in Education.">
+    <meta name="keywords" content="Ambassador's Blog, education, school, learning, knowledge, Cameroon">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="Ambassador's Blog - Excellence in Education">
+    <meta property="og:description" content="Welcome to Ambassador's Blog - sharing knowledge, insights, and updates from our educational community.">
+    <meta property="og:site_name" content="Ambassador's Blog">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
+    <meta property="twitter:title" content="Ambassador's Blog - Excellence in Education">
+    <meta property="twitter:description" content="Welcome to Ambassador's Blog - sharing knowledge, insights, and updates from our educational community.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% load static %}
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ambassador-orange': '#ff8c00',
+                        'ambassador-deep-orange': '#ff4500',
+                        'ambassador-purple': '#7c3aed',
+                        'ambassador-violet': '#8b5cf6',
+                        'ambassador-deep-purple': '#6d28d9'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Radio Canada', sans-serif;
+        }
+        h1, h2,button {
+            font-family: 'Viga', sans-serif;
+        }
+        h3, h4, h5, h6 {
+            font-family: 'Radio Canada', sans-serif;
+        }
+        .hero-section {
+            position: relative;
+            padding: 5rem 0;
+            color: white;
+            overflow: hidden;
+        }
+
+        /* Carousel background styles */
+        .hero-carousel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(0.5px);
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 140, 0, 0.7), rgba(255, 69, 0, 0.6));
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Purple gradient button styles */
+        .btn-purple-gradient {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            transition: all 0.3s ease;
+        }
+
+        .btn-purple-gradient:hover {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-purple-gradient-light {
+            background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+        }
+
+        .btn-purple-gradient-light:hover {
+            background: linear-gradient(135deg, #9333ea, #7c3aed);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+<!-- Navigation -->
+<nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-20  rounded-full flex items-center justify-center">
+                    <img src="{% static 'images/ambassadors_logo.png' %}" alt="" srcset="">
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">The Ambassador's Blog</h1>
+                    <p class="text-sm text-gray-600">Love - Work - Success</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="{% url 'daycare:home' %}" class="text-gray-700 hover:text-ambassador-violet transition-colors font-medium">Home</a>
+                <a href="#articles" class="text-gray-700 hover:text-ambassador-violet transition-colors font-medium">Articles</a>
+                <a href="#about" class="text-gray-700 hover:text-ambassador-violet transition-colors font-medium">About</a>
+                <a href="#newsletter" class="bg-ambassador-orange text-white px-4 py-2 rounded-lg font-medium">Subscribe</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-btn" class="text-gray-700 hover:text-ambassador-orange">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden pb-4">
+            <div class="flex flex-col space-y-2">
+                <a href="#hero" class="text-gray-700 hover:text-ambassador-violet transition-colors py-2">Home</a>
+                <a href="#articles" class="text-gray-700 hover:text-ambassador-violet transition-colors py-2">Articles</a>
+                <a href="#about" class="text-gray-700 hover:text-ambassador-violet transition-colors py-2">About</a>
+                <a href="#newsletter" class="bg-ambassador-orange text-white px-4 py-2 rounded-lg inline-block text-center">Subscribe</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section id="hero" class="hero-section min-h-screen flex items-center">
+    <!-- Image Carousel Background -->
+    <div class="hero-carousel">
+        <div class="carousel-slide active" style="background-image: url('{% static 'images/BeFunky-collage-blog-presentation.png' %}')"></div>
+        <div class="carousel-slide active" style="background-image: url('{% static 'images/BeFunky-collage-blog-presentation1.png' %}')"></div>
+        <div class="carousel-slide active" style="background-image: url('{% static 'images/BeFunky-collage-blog-presentation2.png' %}')"></div>
+        <div class="carousel-slide active" style="background-image: url('{% static 'images/BeFunky-collage-blog-presentation3.png' %}')"></div>
+        <div class="carousel-slide active" style="background-image: url('{% static 'images/BeFunky-collage-blog-presentation4.png' %}')"></div>
+        <div class="carousel-slide active" style="background-image: url('{% static 'images/BeFunky-collage-blog-presentation5.png' %}')"></div>
+        <div class="carousel-slide active" style="background-image: url('{% static 'images/BeFunky-collage-blog-presentation6.png' %}')"></div>
+        <div class="carousel-slide active" style="background-image: url('{% static 'images/BeFunky-collage-blog-presentation7.png' %}')"></div>
+    </div>
+
+    <div class="hero-overlay"></div>
+    <div class="hero-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center w-full">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">Welcome to the Ambassador's Blog</h1>
+        <p class="text-xl md:text-2xl mb-8 opacity-90 max-w-3xl mx-auto">
+            Sharing knowledge, insights, and updates from our educational community. Join us on a journey of learning and excellence.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="#articles" class="btn-purple-gradient text-white px-8 py-3 rounded-lg font-semibold">Explore Articles</a>
+            <a href="#newsletter" class="border-2 border-white bg-transparent hover:bg-white text-white hover:text-orange-900 hover:border-none hover:shadow-xl px-8 py-3 rounded-lg font-semibold">Subscribe Now</a>
+        </div>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section class="py-12 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Find What You're Looking For</h2>
+            <p class="text-gray-600">Search through our collection of educational articles and insights</p>
+        </div>
+
+        <form method="GET" class="max-w-2xl mx-auto">
+            <div class="relative">
+                <input
+                        type="text"
+                        name="search"
+                        value="{{ search_query }}"
+                        placeholder="Search articles..."
+                        class="w-full pl-12 pr-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-ambassador-orange focus:border-ambassador-orange text-lg"
+                >
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <button type="submit" class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                        <span class="btn-purple-gradient text-white px-6 py-2 rounded-lg">
+                            Search
+                        </span>
+                </button>
+            </div>
+        </form>
+
+        {% if search_query %}
+        <div class="mt-4 text-center">
+            <p class="text-gray-600">Showing results for: <strong>"{{ search_query }}"</strong></p>
+            <a href="{% url 'blog_home' %}" class="text-ambassador-orange hover:underline ml-4">Clear search</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Featured Articles -->
+{% if featured_articles and not search_query %}
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Featured Articles</h2>
+            <p class="text-xl text-gray-600">Discover our most popular and impactful content</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for article in featured_articles %}
+            <article class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-ambassador-orange to-ambassador-deep-orange rounded-full flex items-center justify-center mr-3">
+                            <i class="fas fa-star text-white"></i>
+                        </div>
+                        <span class="btn-purple-gradient text-white px-3 py-1 rounded-full text-sm font-medium">Featured</span>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                        <a href="{{ article.get_absolute_url }}" class="hover:text-ambassador-orange transition-colors">
+                            {{ article.title }}
+                        </a>
+                    </h3>
+
+                    {% if article.summary %}
+                    <p class="text-gray-600 mb-4 line-clamp-3">{{ article.summary|truncatechars:120 }}</p>
+                    {% endif %}
+
+                    <div class="flex items-center justify-between text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <i class="fas fa-user mr-2"></i>
+                            <span>{{ article.author.name }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar mr-2"></i>
+                            <span>{{ article.published_at|date:"M j, Y" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{{ article.get_absolute_url }}" class="text-ambassador-orange hover:text-orange-700 font-medium">
+                            Read More <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section id="articles" class="py-16 bg-white relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                {% if search_query %}Search Results{% else %}Latest Articles{% endif %}
+            </h2>
+            <p class="text-xl text-gray-600">
+                {% if search_query %}
+                Articles matching your search
+                {% else %}
+                Stay updated with our newest educational content
+                {% endif %}
+            </p>
+        </div>
+
+        {% if articles %}
+        <div class="relative">
+            <!-- Carousel container -->
+            <div class="articles-carousel overflow-hidden">
+                <div class="articles-track flex transition-transform duration-500 ease-in-out">
+                    {% for article in articles %}
+                    <div class="article-slide min-w-full md:min-w-[50%] lg:min-w-[33.333%] px-4">
+                        <article class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg overflow-hidden card-hover">
+                            <div class="p-6">
+                                <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                                    <a href="{{ article.get_absolute_url }}" class="hover:text-ambassador-orange transition-colors">
+                                        {{ article.title }}
+                                    </a>
+                                </h3>
+
+                                {% if article.summary %}
+                                <p class="text-gray-600 mb-4 line-clamp-3">{{ article.summary|truncatechars:120 }}</p>
+                                {% endif %}
+
+                                <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-6 h-6 bg-gradient-to-r from-ambassador-orange to-ambassador-deep-orange rounded-full flex items-center justify-center mr-2">
+                                            <i class="fas fa-user text-white text-xs"></i>
+                                        </div>
+                                        <span>{{ article.author.name }}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar mr-2"></i>
+                                        <span>{{ article.published_at|date:"M j" }}</span>
+                                    </div>
+                                </div>
+
+                                <a href="{{ article.get_absolute_url }}" class="inline-flex items-center text-ambassador-orange hover:text-orange-700 font-medium transition-colors">
+                                    Read Article
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- Navigation buttons -->
+            <button class="articles-prev absolute left-0 top-1/2 -translate-y-1/2 bg-gray-800 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-900 z-10 opacity-75 hover:opacity-100">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="articles-next absolute right-0 top-1/2 -translate-y-1/2 bg-gray-800 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-900 z-10 opacity-75 hover:opacity-100">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <div class="text-gray-400 mb-4">
+                <i class="fas fa-search text-6xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">
+                {% if search_query %}No articles found{% else %}No articles yet{% endif %}
+            </h3>
+            <p class="text-gray-600 mb-6">
+                {% if search_query %}
+                Try adjusting your search terms or browse all articles.
+                {% else %}
+                Check back soon for new educational content!
+                {% endif %}
+            </p>
+            {% if search_query %}
+            <a href="{% url 'blog_home' %}" class="btn-purple-gradient text-white px-6 py-3 rounded-lg font-medium">
+                Browse All Articles
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<section id="newsletter" class="py-16 bg-gradient-to-r from-ambassador-orange to-ambassador-deep-orange text-white w-full">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">Stay Connected</h2>
+        <p class="text-xl mb-8 opacity-90">Subscribe to our newsletter and never miss an update from Ambassador's Blog</p>
+        <form class="max-w-md mx-auto" method="post" action="#newsletter">
+            {% csrf_token %}
+            <div class="flex flex-col sm:flex-row gap-4">
+                <input type="text" name="name" placeholder="Enter your name" required class="flex-1 px-6 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-ambassador-violet">
+                <input type="email" name="email" placeholder="Enter your email address" required class="flex-1 px-6 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-ambassador-violet">
+                <button type="submit" class="btn-purple-gradient-light text-white px-8 py-3 rounded-lg font-medium">Subscribe</button>
+            </div>
+            <p class="text-sm opacity-75 mt-4">Join over 1,000 subscribers. No spam, unsubscribe anytime.</p>
+        </form>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-6">About Ambassador's Blog</h2>
+                <p class="text-lg text-gray-600 mb-6">
+                    We are dedicated to sharing knowledge, insights, and updates from our educational community.
+                    Our mission is to foster learning, inspire growth, and connect minds through quality content.
+                </p>
+                <p class="text-lg text-gray-600 mb-8">
+                    From educational resources to community updates, we strive to be your trusted source
+                    for everything related to academic excellence and personal development.
+                </p>
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-ambassador-violet to-ambassador-deep-purple rounded-full flex items-center justify-center">
+                        <i class="fas fa-quote-left text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-xl font-bold text-gray-900">"Love - Work - Success"</p>
+                        <p class="text-gray-600">Our School Motto</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-ambassador-violet to-ambassador-deep-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-graduation-cap text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Educational Excellence</h3>
+                    <p class="text-gray-600">Quality content for learning and growth</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-ambassador-violet to-ambassador-deep-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-users text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Community Focus</h3>
+                    <p class="text-gray-600">Building connections through shared knowledge</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-ambassador-violet to-ambassador-deep-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-lightbulb text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Innovation</h3>
+                    <p class="text-gray-600">Modern approaches to education</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-ambassador-violet to-ambassador-deep-purple rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-heart text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Passion</h3>
+                    <p class="text-gray-600">Love for learning and teaching</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="bg-gray-900 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- About -->
+            <div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-ambassador-lime to-green-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-white"></i>
+                    </div>
+                    <h3 class="text-xl font-bold">Ambassador's Blog</h3>
+                </div>
+                <p class="text-gray-400 mb-4">Sharing knowledge, insights, and updates from our educational community.</p>
+                <p class="text-sm text-gray-500 italic">"Love - Work - Success"</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-gray-400">
+                    <li><a href="{%url 'daycare:home'%}" class="hover:text-white transition-colors">Home</a></li>
+                    <li><a href="{%url 'daycare:home'%}" class="hover:text-white transition-colors">Daycare</a></li>
+                    <li><a href="#about" class="hover:text-white transition-colors">Nursery School</a></li>
+                    <li><a href="#about" class="hover:text-white transition-colors">Primary School</a></li>
+                    <li><a href="#newsletter" class="hover:text-white transition-colors">Newsletter</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
+                <div class="space-y-2 text-gray-400">
+                    <p><i class="fas fa-envelope mr-2"></i> ambassadeurs@yahoo.edu</p>
+                    <p><i class="fas fa-phone mr-2"></i> (+237) 699 090 190</p>
+                    <p><i class="fas fa-phone mr-2"></i> (+237) 677 198 810</p>
+                    <p><i class="fas fa-phone mr-2"></i> (+237) 695 955 402</p>
+                    <p><i class="fas fa-phone mr-2"></i> (+237) 691 377 878</p>
+                    <p><i class="fas fa-map-marker-alt mr-2"></i> Bertoua, Cameroon</p>
+                </div>
+            </div>
+
+            <!-- Social -->
+            <div>
+                <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors" title="Facebook">
+                        <i class="fab fa-facebook text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors" title="WhatsApp">
+                        <i class="fab fa-whatsapp text-2xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors" title="Instagram">
+                        <i class="fab fa-instagram text-2xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-800 mt-8 pt-6 text-center">
+            <p class="text-gray-400">
+                © {% now "Y" %} Ambassador's Blog. All rights reserved.
+            </p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Image Carousel for Hero Section
+    let currentSlide = 0;
+    const heroSlides = document.querySelectorAll('.hero-carousel .carousel-slide');
+    const totalHeroSlides = heroSlides.length;
+
+    if (totalHeroSlides > 0) {
+        function showNextSlide() {
+            heroSlides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % totalHeroSlides;
+            heroSlides[currentSlide].classList.add('active');
+        }
+
+        // Change slide every 4 seconds
+        setInterval(showNextSlide, 4000);
+    }
+
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+
+                // Close mobile menu if open
+                document.getElementById('mobile-menu').classList.add('hidden');
+            }
+        });
+    });
+
+    // Newsletter form handling
+    document.querySelector('#newsletter form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        // Here you would typically send the data to your backend
+        // For now, show a simple alert
+        alert('Thank you for subscribing! You will receive our latest updates.');
+        this.reset();
+    });
+
+    function initArticlesCarousel() {
+        const carousel = document.querySelector('.articles-carousel');
+        if (!carousel) return;
+
+        const track = carousel.querySelector('.articles-track');
+        const slides = carousel.querySelectorAll('.article-slide');
+        const prevBtn = document.querySelector('.articles-prev');
+        const nextBtn = document.querySelector('.articles-next');
+
+        if (slides.length === 0) {
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
+            return;
+        }
+
+        let currentIndex = 0;
+        const slideWidth = slides[0].offsetWidth;
+        const totalSlides = slides.length;
+
+        // Handle single slide
+        if (totalSlides === 1) {
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
+            return;
+        }
+
+        // Clone first and last slides for infinite effect
+        const firstClone = slides[0].cloneNode(true);
+        const lastClone = slides[totalSlides - 1].cloneNode(true);
+
+        track.appendChild(firstClone);
+        track.insertBefore(lastClone, track.firstChild);
+
+        // Position at first real slide
+        track.style.transform = `translateX(-${slideWidth}px)`;
+
+        function goToSlide(index) {
+            track.style.transition = 'transform 0.5s ease-in-out';
+            track.style.transform = `translateX(-${(index + 1) * slideWidth}px)`;
+            currentIndex = index;
+        }
+
+        function nextSlide() {
+            if (currentIndex >= totalSlides - 1) {
+                // Jump to first clone without animation
+                track.style.transition = 'none';
+                track.style.transform = `translateX(0px)`;
+
+                // Force reflow
+                track.offsetHeight;
+
+                // Animate to first real slide
+                goToSlide(0);
+            } else {
+                goToSlide(currentIndex + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex <= 0) {
+                // Jump to last clone without animation
+                track.style.transition = 'none';
+                track.style.transform = `translateX(-${(totalSlides + 1) * slideWidth}px)`;
+
+                // Force reflow
+                track.offsetHeight;
+
+                // Animate to last real slide
+                goToSlide(totalSlides - 1);
+            } else {
+                goToSlide(currentIndex - 1);
+            }
+        }
+
+        // Handle transition end for infinite loop
+        track.addEventListener('transitionend', () => {
+            if (currentIndex >= totalSlides) {
+                track.style.transition = 'none';
+                track.style.transform = `translateX(-${slideWidth}px)`;
+                currentIndex = 0;
+            } else if (currentIndex < 0) {
+                track.style.transition = 'none';
+                track.style.transform = `translateX(-${totalSlides * slideWidth}px)`;
+                currentIndex = totalSlides - 1;
+            }
+        });
+
+        // Button event listeners
+        if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+        if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            // Recalculate slide width
+            const newSlideWidth = slides[0].offsetWidth;
+
+            // Update position
+            track.style.transition = 'none';
+            track.style.transform = `translateX(-${(currentIndex + 1) * newSlideWidth}px)`;
+        });
+    }
+
+    // Initialize carousel when DOM is loaded
+    document.addEventListener('DOMContentLoaded', initArticlesCarousel);
+</script>
+</body>
+</html>

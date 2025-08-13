@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        isSidebarOpen: window.innerWidth >= 768,
+        isMobile: window.innerWidth < 768
+    }"
+      x-init="
+        $watch('darkMode', val => localStorage.setItem('darkMode', val));
+        window.addEventListener('resize', () => {
+            isMobile = window.innerWidth < 768;
+            if (!isMobile) {
+                isSidebarOpen = true;
+            } else {
+                isSidebarOpen = false;
+            }
+        });
+    "
+      :class="{ 'dark': darkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Article - Ambassador's Blog</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.min.js" defer></script>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="{% static 'blog/css/enhanced-blog-styles.css' %}" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            'DEFAULT': '#8b5cf6',
+                            '50': '#f5f3ff', '100': '#ede9fe', '200': '#ddd6fe', '300': '#c4b5fd', '400': '#a78bfa', '500': '#8b5cf6', '600': '#7c3aed', '700': '#6d28d9', '800': '#5b21b6', '900': '#4c1d95', '950': '#2e1065'
+                        },
+                        'secondary': {
+                            'DEFAULT': '#a3e635',
+                            '50': '#f7fee7', '100': '#ecfccb', '200': '#d9f99d', '300': '#bef264', '400': '#a3e635', '500': '#84cc16', '600': '#65a30d', '700': '#4d7c0f', '800': '#3f6212', '900': '#365314', '950': '#1a2e05'
+                        },
+                        'dark-bg': '#111827',
+                        'dark-surface': '#1f2937',
+                        'dark-border': '#374151',
+                        'light-bg': '#f9fafb',
+                        'light-surface': '#ffffff',
+                        'light-border': '#e5e7eb',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Radio Canada', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        h1, h2, button {
+            font-family: 'Viga', sans-serif;
+        }
+        .transition-all-300 {
+            transition: all 0.3s ease-in-out;
+        }
+        .ql-container {
+            min-height: 250px;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(139, 92, 246, 0.5);
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(139, 92, 246, 0.8);
+        }
+        #editor img {
+            max-width: 100%;
+            height: auto;
+            max-height: 300px;
+            display: block;
+            margin: 1rem auto;
+        }
+    </style>
+</head>
+<body class="bg-light-bg dark:bg-dark-bg text-gray-800 dark:text-gray-200">
+<div class="flex min-h-screen relative">
+    <!-- Sidebar -->
+    <aside
+            class="bg-gradient-to-b from-primary-900 to-primary-950 text-white fixed inset-y-0 left-0 z-50 flex flex-col transition-width-300"
+            :class="{
+                'w-64': isSidebarOpen,
+                'w-20': !isSidebarOpen && !isMobile,
+                'w-0 overflow-hidden': !isSidebarOpen && isMobile
+            }">
+
+        <!-- Logo and Brand -->
+        <div class="flex items-center justify-center h-20 border-b border-primary-800" :class="{'px-6': isSidebarOpen}">
+            <img src="{% static 'images/ambassadors_logo.png' %}" alt="Ambassador's Logo" class="w-12 h-12 bg-white rounded-full p-1 transition-all-300" :class="{'mr-3': isSidebarOpen}">
+            <div class="overflow-hidden" :class="{'w-full': isSidebarOpen, 'w-0': !isSidebarOpen}">
+                <h1 class="text-lg font-bold whitespace-break text-center">Blog Administration</h1>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 mt-6 space-y-2 px-2">
+            <a href="{% url 'admin_dashboard' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-tachometer-alt fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-globe fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Website Info</span>
+            </a>
+            <a href="{% url 'admin_profile' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-user-circle fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Profile</span>
+            </a>
+            <a href="{% url 'admin_archived' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-archive fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Archived</span>
+            </a>
+            {% if is_authorized_creator %}
+            <a href="{% url 'create_admin_user' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-user-plus fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Create Admin</span>
+            </a>
+            {% endif %}
+            <!-- Current Page Highlighted -->
+            <a href="{% url 'create_article' %}" class="flex items-center px-4 py-3 rounded-lg bg-primary-700 text-white border-l-4 border-secondary-DEFAULT">
+                <i class="fas fa-plus fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Create Article</span>
+            </a>
+        </nav>
+
+        <!-- User Profile & Logout -->
+        <div class="px-2 pb-4">
+            <div class="flex items-center p-2 bg-primary-800/50 rounded-lg" :class="{'justify-start': isSidebarOpen, 'justify-center': !isSidebarOpen}">
+                <img class="h-10 w-10 rounded-full object-cover" src="https://placehold.co/100x100/a3e635/4c1d95?text={{ admin_name|slice:':1'|upper }}" alt="User avatar">
+                <div class="ml-3 overflow-hidden" :class="{'w-full': isSidebarOpen, 'w-0': !isSidebarOpen}">
+                    <p class="text-sm font-medium text-white whitespace-nowrap">{{ admin_name }}</p>
+                    <p class="text-xs text-gray-400 whitespace-nowrap">Administrator</p>
+                </div>
+            </div>
+            <a href="{% url 'admin_logout' %}" class="flex items-center mt-2 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">
+                <i class="fas fa-sign-out-alt fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Sidebar backdrop for mobile -->
+    <div x-show="isSidebarOpen && isMobile" @click="isSidebarOpen = false" class="fixed inset-0 bg-black/50 z-40" x-cloak></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col transition-margin-300" :class="{ 'md:ml-64': isSidebarOpen, 'md:ml-20': !isSidebarOpen }">
+        <!-- Header -->
+        <header class="bg-light-surface dark:bg-dark-surface shadow-sm sticky top-0 z-30">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <!-- Sidebar Toggle & Welcome Message -->
+                    <div class="flex items-center">
+                        <button @click="isSidebarOpen = !isSidebarOpen" class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-secondary focus:outline-none">
+                            <i class="fas fa-bars text-2xl"></i>
+                        </button>
+                        <div class="ml-4 hidden sm:block">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Create Article</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Create new content for your blog</p>
+                        </div>
+                    </div>
+
+                    <!-- Header Actions -->
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden md:flex items-center bg-gray-100 dark:bg-dark-border px-4 py-2 rounded-lg">
+                            <i class="fas fa-calendar-alt text-primary dark:text-secondary mr-2"></i>
+                            <span class="text-sm font-medium">{% now "F j, Y" %}</span>
+                        </div>
+
+                        <!-- Theme Toggle -->
+                        <button @click="darkMode = !darkMode" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors">
+                            <i x-show="!darkMode" class="fas fa-moon"></i>
+                            <i x-show="darkMode" class="fas fa-sun text-yellow-400"></i>
+                            <span class="sr-only">Toggle theme</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="flex-1 p-4 sm:p-6 lg:p-8">
+            {% if messages %}
+            <div class="mb-6 space-y-4">
+                {% for message in messages %}
+                <div class="p-4 rounded-lg border {% if message.tags == 'error' %}bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700{% else %}bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700{% endif %}">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            {% if message.tags == 'error' %}<i class="fas fa-times-circle text-red-500"></i>
+                            {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle text-yellow-500"></i>
+                            {% else %}<i class="fas fa-check-circle text-green-500"></i>
+                            {% endif %}
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-800 dark:text-red-200{% elif message.tags == 'warning' %}text-yellow-800 dark:text-yellow-200{% else %}text-green-800 dark:text-green-200{% endif %}">
+                                {{ message }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Article Form -->
+            <div class="bg-light-surface dark:bg-dark-surface rounded-xl shadow-sm border border-light-border dark:border-dark-border p-6">
+                <div class="space-y-6">
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Article Title</label>
+                        <input type="text" name="title" id="title" value="{{ title|default:'' }}" class="mt-1 block w-full px-4 py-3 border border-light-border dark:border-dark-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-light-bg dark:bg-dark-bg" placeholder="Enter a catchy title" required>
+                    </div>
+
+                    <div>
+                        <label for="summary" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Summary</label>
+                        <textarea name="summary" id="summary" rows="3" class="mt-1 block w-full px-4 py-3 border border-light-border dark:border-dark-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-light-bg dark:bg-dark-bg" placeholder="A brief summary of the article">{{ summary|default:'' }}</textarea>
+                    </div>
+
+                    <div>
+                        <label for="editor" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Content</label>
+                        <div id="editor" class="mt-1 bg-light-bg dark:bg-dark-bg rounded-lg border border-light-border dark:border-dark-border">{{ content|default:'' }}</div>
+                    </div>
+
+                    <div class="flex flex-wrap justify-end gap-3 pt-4">
+                        <a href="{% url 'admin_dashboard' %}" class="px-6 py-3 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-dark-border hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                            Cancel
+                        </a>
+                        <button type="button" id="saveAsDraftBtn" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow">
+                            <i class="fas fa-save mr-2"></i>
+                            Save as Draft
+                        </button>
+                        <button type="button" id="previewBtn" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow">
+                            <i class="fas fa-eye mr-2"></i>
+                            Preview Article
+                        </button>
+                        <button type="button" id="publishBtn" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow">
+                            <i class="fas fa-upload mr-2"></i>
+                            Publish Article
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-light-surface dark:bg-dark-surface border-t border-light-border dark:border-dark-border mt-auto">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">&copy; {% now "Y" %} Ambassador's Blog. All Rights Reserved.</p>
+            </div>
+        </footer>
+    </main>
+</div>
+
+<!-- Hidden forms remain unchanged -->
+<form id="draftForm" method="post" action="{% url 'create_article' %}" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="title" id="draft-title">
+    <input type="hidden" name="summary" id="draft-summary">
+    <input type="hidden" name="content" id="draft-content">
+    <input type="hidden" name="status" value="draft">
+    <input type="hidden" name="content_json" id="draft-content-json">
+</form>
+
+<form id="publishForm" method="post" action="{% url 'create_article' %}" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="title" id="publish-title">
+    <input type="hidden" name="summary" id="publish-summary">
+    <input type="hidden" name="content" id="publish-content">
+    <input type="hidden" name="status" value="published">
+    <input type="hidden" name="content_json" id="publish-content-json">
+</form>
+
+<form id="previewForm" method="post" action="{% url 'preview_article' %}" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="title" id="preview-title">
+    <input type="hidden" name="summary" id="preview-summary">
+    <input type="hidden" name="content" id="preview-content">
+    <input type="hidden" name="content_json" id="preview-content-json">
+</form>
+
+
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Quill editor
+        var quill = new Quill('#editor', {
+            theme: 'snow',
+            placeholder: 'Write your masterpiece here...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['blockquote', 'code-block'],
+                    [{ 'header': 1 }, { 'header': 2 }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'direction': 'rtl' }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'font': [] }],
+                    [{ 'align': [] }],
+                    ['link', 'image', 'video'],
+                    ['clean']
+                ]
+            }
+        });
+
+        // Set existing content if available
+        var existingContent = '{{ content|default:""|escapejs }}';
+        if (existingContent) {
+            quill.root.innerHTML = existingContent;
+        }
+
+        // Handle form submissions
+        function submitForm(status) {
+            const title = document.getElementById('title').value;
+            const summary = document.getElementById('summary').value;
+            const content = quill.root.innerHTML;
+
+            if (!title.trim() || !content.trim()) {
+                alert('Please fill in the title and content fields.');
+                return false;
+            }
+
+            if (status === 'published' && !confirm('Publish this article now?')) {
+                return false;
+            }
+
+            const form = document.getElementById(status + 'Form');
+            document.getElementById(status + '-title').value = title;
+            document.getElementById(status + '-summary').value = summary;
+            document.getElementById(status + '-content').value = content;
+            form.submit();
+            return true;
+        }
+
+        // Button event handlers
+        document.getElementById('saveAsDraftBtn').addEventListener('click', () => submitForm('draft'));
+        document.getElementById('previewBtn').addEventListener('click', () => submitForm('preview'));
+        document.getElementById('publishBtn').addEventListener('click', () => submitForm('publish'));
+    });
+</script>
+</body>
+</html>
