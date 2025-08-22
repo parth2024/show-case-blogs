@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('daycare_ambassadeurs.urls')),  # Include the URLs from the daycare_ambassadeurs app
     path('blog/', include('blog.urls')),  # Include the URLs from the blog app
     path('__reload__/', include('django_browser_reload.urls')),
+    path('primaire/', include('primaire.urls')) # Include URLs from the primaire app.
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 # if settings.DEBUG:
 #     urlpatterns += [

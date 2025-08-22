@@ -60,7 +60,7 @@ MIDDLEWARE = [
 
 
 INTERNAL_IPS = [
-    '127.0.0.1',
+    '127.0.0.1', 'localhost'
 ]
 
 
@@ -69,7 +69,10 @@ ROOT_URLCONF = 'daycare.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'daycare_ambassadeurs' / 'templates'],
+        'DIRS': [
+            BASE_DIR / 'daycare_ambassadeurs' / 'templates',
+            BASE_DIR / 'primaire' / 'templates',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -141,6 +144,7 @@ STATICFILES_DIRS = [
     BASE_DIR / "daycare_ambassadeurs" / "static",
     BASE_DIR / "theme" / "static",
     BASE_DIR / "blog" / "static",
+    BASE_DIR / "primaire" / "static",
 ]
 
 
