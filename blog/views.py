@@ -1,14 +1,13 @@
 import uuid
-
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
-from django.contrib.sessions.models import Session
 from django.utils.decorators import method_decorator
 from django.views import View
 from .models import *
 from django.http import JsonResponse, Http404
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils import timezone
 import re
@@ -16,6 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from .utils import *
 import os
+from django.core.paginator import Paginator
 
 
 class LoginView(View):
@@ -44,7 +44,7 @@ class LoginView(View):
                 request.session['admin_id'] = admin.id
                 request.session['admin_name'] = admin.name
                 request.session['admin_email'] = admin.email
-                
+
                 messages.success(request, f'Welcome back, {admin.name}!')
                 return redirect('admin_dashboard')
             else:
@@ -76,27 +76,27 @@ def admin_required(view_func):
 def dashboard_view(request):
     """Main dashboard with statistics and article management"""
 
-    authorized_admins = ['Franck Yoteu', 'Arsene Minkam', 'Liboire Minkam', 'Yoteu Rovani']
+    authorized_admins = ['Franck Yoteu', 'Arsene Minkam', 'Liboire Minkam', 'Yoteu Rovani', 'Kpaga Kombo']
     is_authorized_creator = request.session.get('admin_name') in authorized_admins
 
     print(f"Authorized creator: {is_authorized_creator}")
-    
+
     # Get statistics
     stats = {
         'published_articles': Article.objects.filter(status='published').count(),
-        'subscribers': User.objects.count(),
-        # For now, we'll use a placeholder for average rating since we don't have ratings yet
-        'average_rating': 4.2,  # This will be calculated from actual ratings later
+        'subscribers': User.objects.filter(is_active=True).count(),
+        'total_likes': Like.objects.count(),
+        'total_comments': Comment.objects.count(),
         'draft_articles': Article.objects.filter(status='draft').count(),
         'archived_articles': Article.objects.filter(status='archived').count(),
     }
-    
+
     # Get search query if any
     search_query = request.GET.get('search', '').strip()
-    
+
     # Get all articles (excluding archived by default)
     articles = Article.objects.filter(status__in=['published', 'draft']).order_by('-created_at')
-    
+
     # Apply search filter if provided
     if search_query:
         articles = articles.filter(
@@ -104,17 +104,17 @@ def dashboard_view(request):
             Q(summary__icontains=search_query) |
             Q(content__icontains=search_query)
         )
-    
+
     # Pagination (optional - showing first 20 for now)
     articles = articles[:20]
-    
+
     # Add public URLs for published articles
     for article in articles:
         if article.status == 'published' and article.slug:
             article.public_url = request.build_absolute_uri(article.get_absolute_url())
         else:
             article.public_url = None
-    
+
     context = {
         'stats': stats,
         'articles': articles,
@@ -122,8 +122,9 @@ def dashboard_view(request):
         'admin_name': request.session.get('admin_name', 'Admin'),
         'is_authorized_creator': is_authorized_creator,
     }
-    
+
     return render(request, 'blog/admin_dashboard.html', context)
+
 
 class PublicArticleView(View):
     """Public view for displaying published articles"""
@@ -143,26 +144,68 @@ class PublicArticleView(View):
         try:
             # Only show published articles to public
             article = get_object_or_404(Article, slug=slug, status='published')
-            
+
+            # Increment view count
+            article.increment_view_count()
+
             reading_time = self.calculate_reading_time(article.content)
             processed_content = process_content_for_display(article.content)
+
             # Get related articles (same author, excluding current)
             related_articles = Article.objects.filter(
                 author=article.author,
                 status='published'
             ).exclude(id=article.id)[:3]
-            
+
+            # Get approved comments
+            comments = article.comments.filter(is_approved=True)
+
+            # Get like count
+            like_count = article.likes.count()
+
+            # Check if user has liked this article
+            user_has_liked = False
+            if request.session.get('user_id'):
+                user_has_liked = article.likes.filter(id=request.session['user_id']).exists()
+
             context = {
                 'article': article,
                 'processed_content': processed_content,
                 'reading_time': reading_time,
                 'related_articles': related_articles,
+                'comments': comments,
+                'like_count': like_count,
+                'user_has_liked': user_has_liked,
             }
-            
+
             return render(request, self.template_name, context)
-            
+
         except Article.DoesNotExist:
             raise Http404("Article not found or not published")
+
+    def post(self, request, slug):
+        """Handle comment submission"""
+        article = get_object_or_404(Article, slug=slug, status='published')
+
+        user_name = request.POST.get('name', '').strip()
+        user_email = request.POST.get('email', '').strip()
+        content = request.POST.get('content', '').strip()
+
+        if not user_name or not user_email or not content:
+            messages.error(request, 'Please fill in all fields.')
+            return redirect('public_article', slug=slug)
+
+        # Create comment (initially not approved)
+        comment = Comment.objects.create(
+            article=article,
+            user_name=user_name,
+            user_email=user_email,
+            content=content,
+            is_approved=False  # Comments need approval
+        )
+
+        messages.success(request, 'Your comment has been submitted and is awaiting approval.')
+        return redirect('public_article', slug=slug)
 
 
 class BlogHomeView(View):
@@ -174,39 +217,36 @@ class BlogHomeView(View):
         # Get featured articles
         featured_articles = Article.objects.filter(
             status='published',
-            islike=True
+            is_featured=True
         ).order_by('-published_at')[:3]
-        
+
         # Get recent articles
-        recent_articles = Article.objects.filter(
-            status='published'
-        ).order_by('-published_at')[:6]
-        
+        articles = Article.objects.filter(status='published').order_by('-published_at')
+
         # Get search query if any
         search_query = request.GET.get('search', '').strip()
-        articles = Article.objects.filter(status='published').order_by('-published_at')
-        
+
         if search_query:
             articles = articles.filter(
                 Q(title__icontains=search_query) |
                 Q(summary__icontains=search_query) |
                 Q(content__icontains=search_query)
             )
-        
-        # Pagination (show 10 per page)
-        articles = articles[:10]
-        
+
+        # Pagination
+        paginator = Paginator(articles, 10)  # Show 10 articles per page
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
         context = {
             'featured_articles': featured_articles,
-            'recent_articles': recent_articles,
-            'articles': articles,
+            'articles': page_obj,
             'search_query': search_query,
         }
-        
+
         return render(request, self.template_name, context)
 
 
-# Update existing admin view_article to show public URL
 @admin_required
 def view_article(request, article_id):
     """View article in admin preview mode"""
@@ -216,12 +256,12 @@ def view_article(request, article_id):
         text = re.sub(r'<[^>]+>', '', article.content)
         words = len(text.split())
         reading_time = max(1, round(words / 200))
-        
+
         # Generate public URL if published
         public_url = None
         if article.status == 'published' and article.slug:
             public_url = request.build_absolute_uri(article.get_absolute_url())
-        
+
         context = {
             'article': article,
             'reading_time': reading_time,
@@ -229,7 +269,7 @@ def view_article(request, article_id):
             'admin_name': request.session.get('admin_name', 'Admin'),
         }
         return render(request, 'blog/view_article.html', context)
-    
+
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
         return redirect('admin_dashboard')
@@ -251,8 +291,9 @@ class CreateArticleView(View):
         title = request.POST.get('title', '').strip()
         summary = request.POST.get('summary', '').strip()
         content = request.POST.get('content', '').strip()
-        content_json = request.POST.get('content_json')
+        showcase_image_id = request.POST.get('showcase_image')
         status = request.POST.get('status', 'draft')
+        is_featured = request.POST.get('is_featured') == 'on'
 
         if not title or not content:
             messages.error(request, 'Title and content are required.')
@@ -261,32 +302,43 @@ class CreateArticleView(View):
                 'title': title,
                 'summary': summary,
                 'content': content,
-                'status': status
+                'status': status,
+                'is_featured': is_featured
             }
             return render(request, self.template_name, context)
 
         try:
             admin_id = request.session.get('admin_id')
             author = Admin.objects.get(id=admin_id)
+
+            # Create article
             article = Article(
                 title=title,
                 summary=summary,
                 content=content,
-                content_json=content_json,
                 status=status,
-                author=author
+                author=author,
+                is_featured=is_featured
             )
+
+            # Set showcase image if provided
+            if showcase_image_id:
+                try:
+                    showcase_image = Attachment.objects.get(id=showcase_image_id)
+                    article.showcase_image = showcase_image
+                except Attachment.DoesNotExist:
+                    pass
+
             if status == 'published':
                 article.published_at = timezone.now()
+
             article.save()
-            # Associate images
-            associate_attachments_with_article(article, content)
 
             if status == 'published':
                 messages.success(request, f'Article "{title}" published successfully.')
             else:
                 messages.success(request, f'Article "{title}" saved as draft.')
-            
+
             return redirect('admin_dashboard')
 
         except Admin.DoesNotExist:
@@ -299,7 +351,8 @@ class CreateArticleView(View):
                 'title': title,
                 'summary': summary,
                 'content': content,
-                'status': status
+                'status': status,
+                'is_featured': is_featured
             }
             return render(request, self.template_name, context)
 
@@ -322,6 +375,7 @@ class PreviewArticleView(View):
         title = request.POST.get('title', '').strip()
         summary = request.POST.get('summary', '').strip()
         content = request.POST.get('content', '').strip()
+        showcase_image_id = request.POST.get('showcase_image')
         processed_content = process_content_for_display(content)
 
         if not title or not content:
@@ -331,29 +385,33 @@ class PreviewArticleView(View):
         try:
             admin_id = request.session.get('admin_id')
             author = Admin.objects.get(id=admin_id)
-            
+
+            # Get showcase image if provided
+            showcase_image = None
+            if showcase_image_id:
+                try:
+                    showcase_image = Attachment.objects.get(id=showcase_image_id)
+                except Attachment.DoesNotExist:
+                    pass
+
             # Create a temporary article object for preview (not saved to database)
-            article = Article(
-                title=title,
-                summary=summary,
-                content=content,
-                author=author,
-                created_at=timezone.now()
-            )
             article_preview = {
-                'title': request.POST.get('title'),
-                'summary': request.POST.get('summary'),
-                'content': processed_content, # Use the processed content
-                'author': Admin.objects.get(id=request.session.get('admin_id')),
+                'title': title,
+                'summary': summary,
+                'content': processed_content,  # Use the processed content
+                'author': author,
+                'showcase_image': showcase_image,
+                'created_at': timezone.now()
             }
+
             reading_time = self.calculate_reading_time(content)
-            
+
             context = {
                 'article': article_preview,
                 'reading_time': reading_time,
                 'admin_name': request.session.get('admin_name', 'Admin'),
             }
-            
+
             return render(request, self.template_name, context)
 
         except Admin.DoesNotExist:
@@ -368,16 +426,16 @@ class PreviewArticleView(View):
 def search_articles_ajax(request):
     """AJAX endpoint for quick article search"""
     query = request.GET.get('q', '').strip()
-    
+
     if len(query) < 2:  # Minimum 2 characters for search
         return JsonResponse({'articles': []})
-    
+
     articles = Article.objects.filter(
         Q(title__icontains=query) |
         Q(summary__icontains=query),
         status__in=['published', 'draft']
     ).values('id', 'title', 'status', 'created_at')[:10]
-    
+
     articles_list = []
     for article in articles:
         articles_list.append({
@@ -386,7 +444,7 @@ def search_articles_ajax(request):
             'status': article['status'],
             'created_at': article['created_at'].strftime('%Y-%m-%d') if article['created_at'] else '',
         })
-    
+
     return JsonResponse({'articles': articles_list})
 
 
@@ -400,7 +458,7 @@ def archive_article(request, article_id):
         messages.success(request, f'Article "{article.title}" has been archived.')
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
-    
+
     return redirect('admin_dashboard')
 
 
@@ -414,7 +472,7 @@ def delete_article(request, article_id):
         messages.success(request, f'Article "{title}" has been deleted permanently.')
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
-    
+
     return redirect('admin_dashboard')
 
 
@@ -431,11 +489,11 @@ def toggle_article_status(request, article_id):
         elif article.status == 'published':
             article.status = 'draft'
             messages.success(request, f'Article "{article.title}" has been moved to draft.')
-        
+
         article.save()
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
-    
+
     return redirect('admin_dashboard')
 
 
@@ -460,16 +518,16 @@ class ProfileView(View):
         """Handle profile update form submission."""
         try:
             admin = Admin.objects.get(id=request.session.get('admin_id'))
-            
+
             # Get form data
             name = request.POST.get('name', '').strip()
             email = request.POST.get('email', '').strip()
-            
+
             # Password fields
             current_password = request.POST.get('current_password', '')
             new_password = request.POST.get('new_password', '')
             confirm_password = request.POST.get('confirm_password', '')
-            
+
             # Basic validation
             if not name or not email:
                 messages.error(request, 'Name and email fields cannot be empty.')
@@ -477,7 +535,7 @@ class ProfileView(View):
 
             # Update name and email
             admin.name = name
-            
+
             # Check if email is being changed and if it's unique
             if email != admin.email:
                 if Admin.objects.filter(email=email).exclude(id=admin.id).exists():
@@ -490,27 +548,27 @@ class ProfileView(View):
                 if not admin.check_password(current_password):
                     messages.error(request, 'Your current password is not correct.')
                     return redirect('admin_profile')
-                
+
                 if new_password != confirm_password:
                     messages.error(request, 'The new passwords do not match.')
                     return redirect('admin_profile')
-                
+
                 admin.set_password(new_password)
                 messages.success(request, 'Password updated successfully.')
-            
+
             admin.save()
-            
+
             # Update session variables
             request.session['admin_name'] = admin.name
             request.session['admin_email'] = admin.email
-            
+
             messages.success(request, 'Profile updated successfully.')
             return redirect('admin_profile')
 
         except Admin.DoesNotExist:
             messages.error(request, 'Admin profile not found. Please log in again.')
             return redirect('admin_login')
-        
+
 
 @admin_required
 def archived_articles_view(request):
@@ -520,10 +578,10 @@ def archived_articles_view(request):
 
     authorized_admins = ['Franck Yoteu', 'Arsene Minkam', 'Liboire Minkam', 'Yoteu Rovani']
     is_authorized_creator = request.session.get('admin_name') in authorized_admins
-    
+
     # Get all archived articles
     articles = Article.objects.filter(status='archived').order_by('-updated_at')
-    
+
     # Apply search filter if provided
     if search_query:
         articles = articles.filter(
@@ -531,14 +589,14 @@ def archived_articles_view(request):
             Q(summary__icontains=search_query) |
             Q(content__icontains=search_query)
         )
-    
+
     context = {
         'articles': articles,
         'search_query': search_query,
         'admin_name': request.session.get('admin_name', 'Admin'),
         'is_authorized_creator': is_authorized_creator,
     }
-    
+
     return render(request, 'blog/archived_articles.html', context)
 
 
@@ -552,7 +610,7 @@ def restore_article(request, article_id):
         messages.success(request, f'Article "{article.title}" has been restored to drafts.')
     except Article.DoesNotExist:
         messages.error(request, 'Article not found or is not archived.')
-    
+
     return redirect('admin_archived')
 
 
@@ -619,8 +677,9 @@ def edit_article(request, article_id):
             title = request.POST.get('title', '').strip()
             summary = request.POST.get('summary', '').strip()
             content = request.POST.get('content', '').strip()
-            content_json = request.POST.get('content_json', '')
+            showcase_image_id = request.POST.get('showcase_image')
             status = request.POST.get('status', 'draft')
+            is_featured = request.POST.get('is_featured') == 'on'
 
             if not title or not content:
                 messages.error(request, 'Title and content are required.')
@@ -628,8 +687,18 @@ def edit_article(request, article_id):
                 article.title = title
                 article.summary = summary
                 article.content = content
-                article.content_json = content_json
                 article.status = status
+                article.is_featured = is_featured
+
+                # Handle showcase image
+                if showcase_image_id:
+                    try:
+                        showcase_image = Attachment.objects.get(id=showcase_image_id)
+                        article.showcase_image = showcase_image
+                    except Attachment.DoesNotExist:
+                        article.showcase_image = None
+                else:
+                    article.showcase_image = None
 
                 # Only set published_at if transitioning to published
                 if status == 'published' and not article.published_at:
@@ -640,8 +709,6 @@ def edit_article(request, article_id):
                     article.published_at = None
 
                 article.save()
-                # Associate images
-                associate_attachments_with_article(article, content)
                 messages.success(request, f'Article "{title}" updated successfully.')
                 return redirect('view_article', article_id=article.id)
 
@@ -655,8 +722,6 @@ def edit_article(request, article_id):
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
         return redirect('admin_dashboard')
-
-
 
 
 @admin_required
@@ -700,7 +765,7 @@ def upload_image_view(request):
                 f.write(chunk)
 
         # --- Generate Responsive Versions ---
-        image_versions = create_responsive_images(image_file)
+        image_versions = create_responsive_images(image_file, upload_dir, media_url)
         with open(original_file_path, 'rb') as saved_image_file:
             for size in SIZES_TO_GENERATE:
                 resized_content = resize_image(saved_image_file, size)
@@ -736,6 +801,7 @@ def upload_image_view(request):
 
     return JsonResponse({'images': response_images})
 
+
 def associate_attachments_with_article(article, content):
     """Associate unattached images with an article after it's saved."""
     soup = BeautifulSoup(content, 'html.parser')
@@ -743,3 +809,97 @@ def associate_attachments_with_article(article, content):
 
     for url in image_urls:
         Attachment.objects.filter(link=url, article__isnull=True).update(article=article)
+
+
+def subscribe_newsletter(request):
+    """Handle newsletter subscription"""
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        email = request.POST.get('email', '').strip()
+
+        if not name or not email:
+            messages.error(request, 'Please provide both name and email.')
+            return redirect('blog_home')
+
+        # Check if already subscribed
+        if User.objects.filter(email=email).exists():
+            messages.info(request, 'You are already subscribed to our newsletter.')
+            return redirect('blog_home')
+
+        # Create new subscriber
+        User.objects.create(name=name, email=email)
+        messages.success(request, 'Thank you for subscribing to our newsletter!')
+
+        return redirect('blog_home')
+
+    return redirect('blog_home')
+
+
+def like_article(request, article_id):
+    """Handle article likes"""
+    if request.method == 'POST':
+        try:
+            article = Article.objects.get(id=article_id, status='published')
+
+            # Check if user is logged in (using session)
+            if not request.session.get('user_id'):
+                # Create anonymous user
+                user = User.objects.create(
+                    name='Anonymous',
+                    email=f'anonymous_{uuid.uuid4().hex[:8]}@example.com'
+                )
+                request.session['user_id'] = user.id
+            else:
+                user = User.objects.get(id=request.session['user_id'])
+
+            # Check if already liked
+            if Like.objects.filter(article=article, user=user).exists():
+                messages.info(request, 'You have already liked this article.')
+                return redirect('public_article', slug=article.slug)
+
+            # Create like
+            Like.objects.create(article=article, user=user)
+            messages.success(request, 'Thank you for liking this article!')
+
+            return redirect('public_article', slug=article.slug)
+
+        except Article.DoesNotExist:
+            messages.error(request, 'Article not found.')
+            return redirect('blog_home')
+
+    return redirect('blog_home')
+
+
+def load_more_articles(request):
+    """AJAX endpoint to load more articles"""
+    if request.method == 'GET':
+        page = request.GET.get('page', 1)
+        articles = Article.objects.filter(status='published').order_by('-published_at')
+
+        paginator = Paginator(articles, 10)  # 10 articles per page
+        try:
+            articles_page = paginator.page(page)
+        except EmptyPage:
+            return JsonResponse({'articles': [], 'has_next': False})
+
+        # Serialize articles
+        articles_data = []
+        for article in articles_page:
+            articles_data.append({
+                'id': article.id,
+                'title': article.title,
+                'summary': article.summary,
+                'slug': article.slug,
+                'published_at': article.published_at.strftime('%B %d, %Y') if article.published_at else '',
+                'author_name': article.author.name if article.author else '',
+                'showcase_image': article.showcase_image.link if article.showcase_image else '',
+                'like_count': article.likes.count(),
+                'comment_count': article.comments.filter(is_approved=True).count(),
+            })
+
+        return JsonResponse({
+            'articles': articles_data,
+            'has_next': articles_page.has_next()
+        })
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)

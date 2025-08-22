@@ -106,15 +106,15 @@ def process_content_for_display(content):
 
     return str(soup)
 
-def create_responsive_images(image_file):
+def create_responsive_images(image_file, upload_dir, media_url):
     """Generate responsive image sizes and return a dict of width:url"""
     sizes = [400, 800, 1200, 1600]
     image_versions = {}
 
     try:
         img = PilImage.open(image_file)
-        original_format = img.format
         original_filename, extension = os.path.splitext(image_file.name)
+        base_filename = slugify(original_filename)
 
         for size in sizes:
             # Don't upscale images smaller than requested size
@@ -123,27 +123,35 @@ def create_responsive_images(image_file):
 
             buffer = io.BytesIO()
             resized = img.copy()
-            resized.thumbnail((size, size * 2))  # Maintain aspect ratio
 
-            # Convert to WEBP if possible
+            # Calculate new height while maintaining aspect ratio
+            ratio = size / float(img.width)
+            new_height = int(float(img.height) * float(ratio))
+
+            # Resize image
+            resized = resized.resize((size, new_height), PilImage.Resampling.LANCZOS)
+
+            # Convert to WEBP if not already in RGB mode
             if resized.mode != 'RGB':
                 resized = resized.convert('RGB')
 
+            # Save as WEBP
             resized.save(buffer, format='WEBP', quality=85)
             buffer.seek(0)
 
             # Create new filename
-            new_filename = f"{slugify(original_filename)}_{size}w.webp"
-            content_file = ContentFile(buffer.read(), name=new_filename)
+            new_filename = f"{base_filename}-{size}w.webp"
+            file_path = os.path.join(upload_dir, new_filename)
 
-            # Save to storage and get URL
-            # You'll need to implement your storage system here
-            # For example:
-            # file_path = default_storage.save(new_filename, content_file)
-            # url = default_storage.url(file_path)
+            # Save file to disk
+            with open(file_path, 'wb') as f:
+                f.write(buffer.getvalue())
 
-            # For now, we'll just store the filename
-            image_versions[size] = new_filename
+            # Generate URL for the resized image
+            rel_path = os.path.relpath(file_path, settings.MEDIA_ROOT)
+            url = f"{media_url}{rel_path}".replace("\\", "/")
+
+            image_versions[str(size)] = url
 
     except Exception as e:
         print(f"Error creating responsive images: {e}")
