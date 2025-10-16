@@ -1,255 +1,200 @@
-<!DOCTYPE html>
-<html lang="en" x-data="{
-        darkMode: localStorage.getItem('darkMode') === 'true',
-        isSidebarOpen: window.innerWidth >= 768,
-        isMobile: window.innerWidth < 768
-    }"
-      x-init="
-        $watch('darkMode', val => localStorage.setItem('darkMode', val));
-        window.addEventListener('resize', () => {
-            isMobile = window.innerWidth < 768;
-            if (!isMobile) {
-                isSidebarOpen = true;
-            } else {
-                isSidebarOpen = false;
-            }
-        });
-    "
-      :class="{ 'dark': darkMode }">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Admin - Ambassador's Blog</title>
-    {% load static %}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.min.js"></script>
+{% extends 'blog/base.html' %}
 
-    <script>
-        // Tailwind CSS Configuration
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': {
-                            'DEFAULT': '#8b5cf6', // violet-500
-                            '50': '#f5f3ff', '100': '#ede9fe', '200': '#ddd6fe', '300': '#c4b5fd', '400': '#a78bfa', '500': '#8b5cf6', '600': '#7c3aed', '700': '#6d28d9', '800': '#5b21b6', '900': '#4c1d95', '950': '#2e1065'
-                        },
-                        'secondary': {
-                            'DEFAULT': '#a3e635', // lime-400
-                            '50': '#f7fee7', '100': '#ecfccb', '200': '#d9f99d', '300': '#bef264', '400': '#a3e635', '500': '#84cc16', '600': '#65a30d', '700': '#4d7c0f', '800': '#3f6212', '900': '#365314', '950': '#1a2e05'
-                        },
-                        'dark-bg': '#111827',
-                        'dark-surface': '#1f2937',
-                        'dark-border': '#374151',
-                        'light-bg': '#f9fafb',
-                        'light-surface': '#ffffff',
-                        'light-border': '#e5e7eb',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* General styling for a smoother experience */
-        body {
-            font-family: 'Radio Canada', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        h1, h2, button {
-            font-family: 'Viga', sans-serif;
-        }
-        h3, h4, h5, h6 {
-            font-family: 'Radio Canada', sans-serif;
-        }
-        /* Transition classes for sidebar and main content */
-        .transition-all-300 {
-            transition: all 0.3s ease-in-out;
-        }
-        .transition-width-300 {
-            transition: width 0.3s ease-in-out;
-        }
-        .transition-margin-300 {
-            transition: margin-left 0.3s ease-in-out;
-        }
-        /* Custom scrollbar for a cleaner look */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: rgba(139, 92, 246, 0.5); /* primary color with opacity */
-            border-radius: 10px;
-            border: 2px solid transparent;
-            background-clip: content-box;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(139, 92, 246, 0.8);
-        }
-    </style>
-</head>
-<body class="bg-light-bg dark:bg-dark-bg text-gray-800 dark:text-gray-200">
-<div class="flex min-h-screen relative">
+{% block title %}Create New Admin - Ambassador's Blog{% endblock %}
+
+{% block content %}
+<div class="h-full flex" x-data="{ sidebarOpen: true, isMobile: window.innerWidth < 1024 }" 
+     @resize.window="isMobile = window.innerWidth < 1024">
+    
     <!-- Sidebar -->
-    <aside
-            class="bg-gradient-to-b from-primary-900 to-primary-950 text-white fixed inset-y-0 left-0 z-50 flex flex-col transition-width-300"
-            :class="{
-                'w-64': isSidebarOpen,
-                'w-20': !isSidebarOpen && !isMobile,
-                'w-0 overflow-hidden': !isSidebarOpen && isMobile
-            }">
-
-        <!-- Logo and Brand -->
-        <div class="flex items-center justify-center h-20 border-b border-primary-800" :class="{'px-6': isSidebarOpen}">
-            <img src="{% static 'images/ambassadors_logo.png' %}" alt="Ambassador's Logo" class="w-12 h-12 bg-white rounded-full p-1 transition-all-300" :class="{'mr-3': isSidebarOpen}">
-            <div class="overflow-hidden" :class="{'w-full': isSidebarOpen, 'w-0': !isSidebarOpen}">
-                <h1 class="text-lg font-bold whitespace-break text-center">Blog Administration</h1>
-            </div>
-        </div>
-
-        <!-- Navigation Links -->
-        <nav class="flex-1 mt-6 space-y-2 px-2">
-            <a href="{% url 'admin_dashboard' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
-                <i class="fas fa-tachometer-alt fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Dashboard</span>
-            </a>
-            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
-                <i class="fas fa-globe fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Website Info</span>
-            </a>
-            <a href="{% url 'admin_profile' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
-                <i class="fas fa-user-circle fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Profile</span>
-            </a>
-            <a href="{% url 'admin_archived' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
-                <i class="fas fa-archive fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Archived</span>
-            </a>
-            <a href="{% url 'create_admin_user' %}" class="flex items-center px-4 py-3 rounded-lg bg-primary-700 text-white border-l-4 border-secondary-DEFAULT">
-                <i class="fas fa-user-plus fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Create Admin</span>
-            </a>
-        </nav>
-
-        <!-- User Profile & Logout -->
-        <div class="px-2 pb-4">
-            <div class="flex items-center p-2 bg-primary-800/50 rounded-lg" :class="{'justify-start': isSidebarOpen, 'justify-center': !isSidebarOpen}">
-                <img class="h-10 w-10 rounded-full object-cover" src="https://placehold.co/100x100/a3e635/4c1d95?text={{ admin_name|slice:':1'|upper }}" alt="User avatar">
-                <div class="ml-3 overflow-hidden" :class="{'w-full': isSidebarOpen, 'w-0': !isSidebarOpen}">
-                    <p class="text-sm font-medium text-white whitespace-nowrap">{{ admin_name }}</p>
-                    <p class="text-xs text-gray-400 whitespace-nowrap">Administrator</p>
-                </div>
-            </div>
-            <a href="{% url 'admin_logout' %}" class="flex items-center mt-2 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">
-                <i class="fas fa-sign-out-alt fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Logout</span>
-            </a>
-        </div>
-    </aside>
-
-    <!-- Sidebar backdrop for mobile -->
-    <div x-show="isSidebarOpen && isMobile" @click="isSidebarOpen = false" class="fixed inset-0 bg-black/50 z-40" x-cloak></div>
-
+    {% include 'blog/_sidebar.html' %}
+    
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col transition-margin-300" :class="{ 'md:ml-64': isSidebarOpen, 'md:ml-20': !isSidebarOpen }">
+    <div class="flex-1 flex flex-col lg:ml-64">
         <!-- Header -->
-        <header class="bg-light-surface dark:bg-dark-surface shadow-sm sticky top-0 z-30">
-            <div class="px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-20">
-                    <!-- Sidebar Toggle & Welcome Message -->
-                    <div class="flex items-center">
-                        <button @click="isSidebarOpen = !isSidebarOpen" class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-secondary focus:outline-none">
-                            <i class="fas fa-bars text-2xl"></i>
-                        </button>
-                        <div class="ml-4 hidden sm:block">
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Create New Admin</h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Add a new administrator to the system</p>
-                        </div>
-                    </div>
-
-                    <!-- Header Actions -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-4">
-                        <div class="hidden md:flex items-center bg-gray-100 dark:bg-dark-border px-4 py-2 rounded-lg">
-                            <i class="fas fa-calendar-alt text-primary dark:text-secondary mr-2"></i>
-                            <span class="text-sm font-medium">{% now "F j, Y" %}</span>
-                        </div>
-
-                        <!-- Theme Toggle -->
-                        <button @click="darkMode = !darkMode" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors">
-                            <i x-show="!darkMode" class="fas fa-moon"></i>
-                            <i x-show="darkMode" class="fas fa-sun text-yellow-400"></i>
-                            <span class="sr-only">Toggle theme</span>
+                        <button @click="sidebarOpen = !sidebarOpen" class="btn-ghost p-2 lg:hidden">
+                            <i class="fas fa-bars text-lg"></i>
                         </button>
+                        <div>
+                            <h1 class="text-2xl font-heading font-bold text-gray-900">Create New Admin</h1>
+                            <p class="text-sm text-gray-600">Add a new administrator or editor to the blog</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Page Content -->
-        <div class="flex-1 p-4 sm:p-6 lg:p-8">
-            {% if messages %}
-            <div class="mb-6 space-y-4">
-                {% for message in messages %}
-                <div class="p-4 rounded-lg border {% if message.tags == 'error' %}bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700{% else %}bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700{% endif %}">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            {% if message.tags == 'error' %}<i class="fas fa-times-circle text-red-500"></i>
-                            {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle text-yellow-500"></i>
-                            {% else %}<i class="fas fa-check-circle text-green-500"></i>
-                            {% endif %}
+        <!-- Create Admin Content -->
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <div class="max-w-2xl mx-auto">
+                <div class="card p-6">
+                    <!-- Info Banner -->
+                    <div class="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-info-circle text-primary text-lg"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-primary mb-1">Administrator Privileges</h3>
+                                <p class="text-sm text-gray-600">
+                                    Admins can create/edit articles, manage categories, and create new admin users. 
+                                    Editors can only create and edit articles.
+                                </p>
+                            </div>
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-800 dark:text-red-200{% elif message.tags == 'warning' %}text-yellow-800 dark:text-yellow-200{% else %}text-green-800 dark:text-green-200{% endif %}">
-                                {{ message }}
+                    </div>
+
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+
+                        <!-- Role Selection -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">
+                                User Role <span class="text-red-500">*</span>
+                            </label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-primary transition-colors">
+                                    <input 
+                                        type="radio" 
+                                        name="role" 
+                                        value="admin"
+                                        checked
+                                        class="sr-only peer"
+                                    >
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-heading font-semibold text-gray-900">Administrator</span>
+                                            <i class="fas fa-crown text-primary"></i>
+                                        </div>
+                                        <p class="text-sm text-gray-600">Full access to all features</p>
+                                    </div>
+                                    <div class="absolute inset-0 border-2 border-primary rounded-lg hidden peer-checked:block"></div>
+                                </label>
+
+                                <label class="relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-secondary transition-colors">
+                                    <input 
+                                        type="radio" 
+                                        name="role" 
+                                        value="editor"
+                                        class="sr-only peer"
+                                    >
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-heading font-semibold text-gray-900">Editor</span>
+                                            <i class="fas fa-pen text-secondary"></i>
+                                        </div>
+                                        <p class="text-sm text-gray-600">Can write and edit articles</p>
+                                    </div>
+                                    <div class="absolute inset-0 border-2 border-secondary rounded-lg hidden peer-checked:block"></div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Name Field -->
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                Full Name <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                required
+                                class="input"
+                                placeholder="Enter full name"
+                            >
+                        </div>
+
+                        <!-- Email Field -->
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                required
+                                class="input"
+                                placeholder="Enter email address"
+                            >
+                            <p class="mt-1 text-sm text-gray-500">
+                                This will be used for login
                             </p>
                         </div>
+
+                        <!-- Password Field -->
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                                Password <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                required
+                                minlength="8"
+                                class="input"
+                                placeholder="Enter secure password"
+                            >
+                            <p class="mt-1 text-sm text-gray-500">
+                                Must be at least 8 characters long
+                            </p>
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div>
+                            <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                                Confirm Password <span class="text-red-500">*</span>
+                            </label>
+                            <input 
+                                type="password" 
+                                id="confirm_password" 
+                                name="confirm_password" 
+                                required
+                                minlength="8"
+                                class="input"
+                                placeholder="Confirm password"
+                            >
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                            <a href="{% url 'blog:admin_dashboard' %}" class="btn btn-ghost">
+                                <i class="fas fa-times mr-2"></i>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-user-plus mr-2"></i>
+                                Create Admin User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shield-alt text-yellow-600 text-lg"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800 mb-1">Security Best Practices</h3>
+                            <ul class="text-sm text-yellow-700 space-y-1">
+                                <li>• Use strong, unique passwords for each admin account</li>
+                                <li>• Share credentials securely (never via email or chat)</li>
+                                <li>• Advise new admins to change their password on first login</li>
+                                <li>• Only grant admin privileges to trusted individuals</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-            {% endif %}
-
-            <!-- Create Admin Form -->
-            <div class="bg-light-surface dark:bg-dark-surface rounded-xl shadow-sm border border-light-border dark:border-dark-border">
-                <div class="p-6 border-b border-light-border dark:border-dark-border">
-                    <h3 class="text-xl font-semibold text-primary-700 dark:text-secondary-400">New Administrator</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Enter the details for the new administrator</p>
-                </div>
-                <form method="post" action="{% url 'create_admin_user' %}" class="p-6 space-y-6">
-                    {% csrf_token %}
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
-                        <input type="text" name="name" id="name" class="w-full px-4 py-3 border border-light-border dark:border-dark-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-light-bg dark:bg-dark-bg" required>
-                    </div>
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email Address</label>
-                        <input type="email" name="email" id="email" class="w-full px-4 py-3 border border-light-border dark:border-dark-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-light-bg dark:bg-dark-bg" required>
-                    </div>
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                        <input type="password" name="password" id="password" class="w-full px-4 py-3 border border-light-border dark:border-dark-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-light-bg dark:bg-dark-bg" required>
-                    </div>
-                    <div class="flex justify-end pt-4">
-                        <button type="submit" class="bg-gradient-to-r from-secondary-500 to-secondary-600 hover:from-secondary-600 hover:to-secondary-700 text-white px-6 py-3 rounded-lg font-medium transition-transform transform hover:scale-105 shadow-lg">
-                            <i class="fas fa-plus mr-2"></i> Create Admin
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="bg-light-surface dark:bg-dark-surface border-t border-light-border dark:border-dark-border mt-auto">
-            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
-                <p class="text-sm text-gray-500 dark:text-gray-400">&copy; {% now "Y" %} Ambassador's Blog. All Rights Reserved. | developed by ID-Group </p>
-            </div>
-        </footer>
-    </main>
+        </main>
+    </div>
 </div>
-</body>
-</html>
+{% endblock %}

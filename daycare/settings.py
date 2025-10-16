@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure--1i70o182&spb*6+^2dj1l*6+*ijfqm$%!%61yc8&g&32$ujbk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.124.5','localhost', '127.0.0.1']
 
 
 # Application definition
@@ -40,11 +41,16 @@ INSTALLED_APPS = [
     'theme',
     'daycare_ambassadeurs',
     'blog',
+    'nursery',
     'django_browser_reload',
     'tailwind',
+    'django_ckeditor_5',
 ]
 
 TAILWIND_APP_NAME = 'theme'
+
+# # Ensure Tailwind tag points to compiled CSS in theme/static/css/dist
+# TAILWIND_CSS_PATH = 'theme/css/dist/styles.css'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -72,6 +78,7 @@ TEMPLATES = [
         'DIRS': [
             BASE_DIR / 'daycare_ambassadeurs' / 'templates',
             BASE_DIR / 'primaire' / 'templates',
+            BASE_DIR / 'nursery' / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -80,6 +87,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'blog.context_processors.pending_comments',
             ],
         },
     },
@@ -95,8 +103,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'blogdb',
-        'USER': 'franckp05',
-        'PASSWORD': '{FranckP#05}',
+        'USER': 'customizer',
+        'PASSWORD': '{Customizer#05}',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -141,10 +149,12 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_DIRS = [
-    BASE_DIR / "daycare_ambassadeurs" / "static",
-    BASE_DIR / "theme" / "static",
-    BASE_DIR / "blog" / "static",
-    BASE_DIR / "primaire" / "static",
+    p for p in [
+        BASE_DIR / "daycare_ambassadeurs" / "static",
+        BASE_DIR / "theme" / "static",
+        BASE_DIR / "blog" / "static",
+        BASE_DIR / "primaire" / "static",
+    ] if p.exists()
 ]
 
 
@@ -171,4 +181,91 @@ MESSAGE_TAGS = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# CKEditor 5
+CKEDITOR_5_CONFIGS = {
+    'default': {
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote', 'imageUpload', '|',
+                    'outdent', 'indent', '|', 'insertTable', 'tableColumn', 'tableRow',
+                    'mergeTableCells', '|', 'codeBlock', 'code', '|', 'undo', 'redo'],
+        'image': {
+            'toolbar': ['imageTextAlternative', '|', 'imageStyle:alignLeft',
+                        'imageStyle:alignRight', 'imageStyle:alignCenter', 'imageStyle:side',  ],
+        },
+        'table': {
+            'contentToolbar': [ 'tableColumn', 'tableRow', 'mergeTableCells',
+                                'tableProperties', 'tableCellProperties' ],
+        },
+        'heading' : {
+            'options': [
+                { 'model': 'paragraph', 'title': 'Paragraph', 'class': 'ck-heading_paragraph' },
+                { 'model': 'heading1', 'view': 'h1', 'title': 'Heading 1', 'class': 'ck-heading_heading1' },
+                { 'model': 'heading2', 'view': 'h2', 'title': 'Heading 2', 'class': 'ck-heading_heading2' },
+                { 'model': 'heading3', 'view': 'h3', 'title': 'Heading 3', 'class': 'ck-heading_heading3' },
+            ]
+        },
+        'height': '300px',
+    },
+    'extends': {
+        'blockToolbar': [
+            'paragraph', 'heading1', 'heading2', 'heading3',
+            '|',
+            'bulletedList', 'numberedList',
+            '|',
+            'blockQuote',
+        ],
+        'toolbar': ['heading', '|', 
+                    'bold', 'italic', 'underline', 'strikethrough', 'code', '|',
+                    'link', 'imageUpload', 'blockQuote', '|',
+                    'bulletedList', 'numberedList', 'todoList', '|',
+                    'alignment:left', 'alignment:center', 'alignment:right', 'alignment:justify', '|',
+                    'outdent', 'indent', '|',
+                    'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                    'subscript', 'superscript', 'highlight', '|',
+                    'insertTable', 'mediaEmbed', '|',
+                    'codeBlock', 'sourceEditing', '|',
+                    'removeFormat', 'undo', 'redo'],
+        'image': {
+            'toolbar': ['imageTextAlternative', '|', 'imageStyle:alignLeft',
+                        'imageStyle:alignRight', 'imageStyle:alignCenter', 'imageStyle:side',  ],
+        },
+        'table': {
+            'contentToolbar': [ 'tableColumn', 'tableRow', 'mergeTableCells',
+                                'tableProperties', 'tableCellProperties' ],
+        },
+        'heading' : {
+            'options': [
+                { 'model': 'paragraph', 'title': 'Paragraph', 'class': 'ck-heading_paragraph' },
+                { 'model': 'heading1', 'view': 'h1', 'title': 'Heading 1', 'class': 'ck-heading_heading1' },
+                { 'model': 'heading2', 'view': 'h2', 'title': 'Heading 2', 'class': 'ck-heading_heading2' },
+                { 'model': 'heading3', 'view': 'h3', 'title': 'Heading 3', 'class': 'ck-heading_heading3' },
+            ]
+        },
+        'height': '600px',
+    }
+}
+
+# CKEditor 5 file upload settings
+CKEDITOR_5_UPLOAD_PATH = 'uploads/'
+CKEDITOR_5_IMAGE_BACKEND = 'pillow'
+CKEDITOR_5_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+# Allow any authenticated session to upload (we check admin_id in session)
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'any'
+
 DATA_UPLOAD_MAX_MEMORY_SIZE = 20971520  # 20MB
+
+# Email Configuration
+# For development: Console backend (prints emails to console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# For production: SMTP backend (uncomment and configure these settings)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'  # Or your email provider's SMTP server
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@gmail.com'  # Your email address
+# EMAIL_HOST_PASSWORD = 'your-app-password'  # Use an app-specific password
+
+# Email settings
+DEFAULT_FROM_EMAIL = 'noreply@ambassadeurs.edu'
+CONTACT_EMAIL = 'contact@ambassadeurs.edu'  # Where contact form messages will be sent

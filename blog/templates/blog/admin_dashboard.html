@@ -1,334 +1,258 @@
-<!DOCTYPE html>
-<html lang="en" x-data="{
-        darkMode: localStorage.getItem('darkMode') === 'true',
-        isSidebarOpen: window.innerWidth >= 768,
-        isMobile: window.innerWidth < 768
-    }"
-      x-init="
-        $watch('darkMode', val => localStorage.setItem('darkMode', val));
-        window.addEventListener('resize', () => {
-            isMobile = window.innerWidth < 768;
-            if (!isMobile) {
-                isSidebarOpen = true;
-            } else {
-                isSidebarOpen = false;
-            }
-        });
-    "
-      :class="{ 'dark': darkMode }">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Ambassador's Blog</title>
-    {% load static %}
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.min.js"></script>
+{% extends 'blog/base.html' %}
 
-    <script>
-        // Tailwind CSS Configuration
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        'primary': {
-                            'DEFAULT': '#8b5cf6', // violet-500
-                            '50': '#f5f3ff', '100': '#ede9fe', '200': '#ddd6fe', '300': '#c4b5fd', '400': '#a78bfa', '500': '#8b5cf6', '600': '#7c3aed', '700': '#6d28d9', '800': '#5b21b6', '900': '#4c1d95', '950': '#2e1065'
-                        },
-                        'secondary': {
-                            'DEFAULT': '#a3e635', // lime-400
-                            '50': '#f7fee7', '100': '#ecfccb', '200': '#d9f99d', '300': '#bef264', '400': '#a3e635', '500': '#84cc16', '600': '#65a30d', '700': '#4d7c0f', '800': '#3f6212', '900': '#365314', '950': '#1a2e05'
-                        },
-                        'dark-bg': '#111827',
-                        'dark-surface': '#1f2937',
-                        'dark-border': '#374151',
-                        'light-bg': '#f9fafb',
-                        'light-surface': '#ffffff',
-                        'light-border': '#e5e7eb',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* General styling for a smoother experience */
-        body {
-            font-family: 'Radio Canada', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        h1, h2,button {
-            font-family: 'Viga', sans-serif;
-        }
-        h3, h4, h5, h6 {
-            font-family: 'Radio Canada', sans-serif;
-        }
-        /* Transition classes for sidebar and main content */
-        .transition-all-300 {
-            transition: all 0.3s ease-in-out;
-        }
-        .transition-width-300 {
-            transition: width 0.3s ease-in-out;
-        }
-        .transition-margin-300 {
-            transition: margin-left 0.3s ease-in-out;
-        }
-        /* Custom scrollbar for a cleaner look */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: rgba(139, 92, 246, 0.5); /* primary color with opacity */
-            border-radius: 10px;
-            border: 2px solid transparent;
-            background-clip: content-box;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background-color: rgba(139, 92, 246, 0.8);
-        }
-    </style>
-</head>
-<body class="bg-light-bg dark:bg-dark-bg text-gray-800 dark:text-gray-200">
-<div class="flex min-h-screen relative">
+{% block title %}Dashboard - Ambassador's Blog{% endblock %}
+
+{% block content %}
+<div class="h-full flex" x-data="{ sidebarOpen: true, isMobile: window.innerWidth < 1024 }" 
+     @resize.window="isMobile = window.innerWidth < 1024">
+    
     <!-- Sidebar -->
-    <aside
-            class="bg-gradient-to-b from-primary-900 to-primary-950 text-white fixed inset-y-0 left-0 z-50 flex flex-col transition-width-300"
-            :class="{
-                'w-64': isSidebarOpen,
-                'w-20': !isSidebarOpen && !isMobile,
-                'w-0 overflow-hidden': !isSidebarOpen && isMobile
-            }">
-
-        <!-- Logo and Brand -->
-        <div class="flex items-center justify-center h-20 border-b border-primary-800" :class="{'px-6': isSidebarOpen}">
-            <img src="{% static 'images/ambassadors_logo.png' %}" alt="Ambassador's Logo" class="w-12 h-12 bg-white rounded-full p-1 transition-all-300" :class="{'mr-3': isSidebarOpen}">
-            <div class="overflow-hidden" :class="{'w-full': isSidebarOpen, 'w-0': !isSidebarOpen}">
-                <h1 class="text-lg font-bold whitespace-break text-center">Blog Administration</h1>
-            </div>
-        </div>
-
-        <!-- Navigation Links -->
-        <nav class="flex-1 mt-6 space-y-2 px-2">
-            <a href="{% url 'admin_dashboard' %}" class="flex items-center px-4 py-3 rounded-lg bg-primary-700 text-white border-l-4 border-secondary-DEFAULT">
-                <i class="fas fa-tachometer-alt fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Dashboard</span>
-            </a>
-            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
-                <i class="fas fa-globe fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Website Info</span>
-            </a>
-            <a href="{% url 'admin_profile' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
-                <i class="fas fa-user-circle fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Profile</span>
-            </a>
-            <a href="{% url 'admin_archived' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
-                <i class="fas fa-archive fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Archived</span>
-            </a>
-            {% if is_authorized_creator %}
-            <a href="{% url 'create_admin_user' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
-                <i class="fas fa-user-plus fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Create Admin</span>
-            </a>
-            {% endif %}
-        </nav>
-
-        <!-- User Profile & Logout -->
-        <div class="px-2 pb-4">
-            <div class="flex items-center p-2 bg-primary-800/50 rounded-lg" :class="{'justify-start': isSidebarOpen, 'justify-center': !isSidebarOpen}">
-                <img class="h-10 w-10 rounded-full object-cover" src="https://placehold.co/100x100/a3e635/4c1d95?text={{ admin_name|slice:':1'|upper }}" alt="User avatar">
-                <div class="ml-3 overflow-hidden" :class="{'w-full': isSidebarOpen, 'w-0': !isSidebarOpen}">
-                    <p class="text-sm font-medium text-white whitespace-nowrap">{{ admin_name }}</p>
-                    <p class="text-xs text-gray-400 whitespace-nowrap">Administrator</p>
-                </div>
-            </div>
-            <a href="{% url 'admin_logout' %}" class="flex items-center mt-2 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">
-                <i class="fas fa-sign-out-alt fa-fw w-8 text-center text-lg"></i>
-                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Logout</span>
-            </a>
-        </div>
-    </aside>
-
-    <!-- Sidebar backdrop for mobile -->
-    <div x-show="isSidebarOpen && isMobile" @click="isSidebarOpen = false" class="fixed inset-0 bg-black/50 z-40" x-cloak></div>
-
+    {% include 'blog/_sidebar.html' %}
+    
     <!-- Main Content -->
-    <main class="flex-1 flex flex-col transition-margin-300" :class="{ 'md:ml-64': isSidebarOpen, 'md:ml-20': !isSidebarOpen }">
+    <div class="flex-1 flex flex-col lg:ml-64">
         <!-- Header -->
-        <header class="bg-light-surface dark:bg-dark-surface shadow-sm sticky top-0 z-30">
-            <div class="px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-20">
-                    <!-- Sidebar Toggle & Welcome Message -->
-                    <div class="flex items-center">
-                        <button @click="isSidebarOpen = !isSidebarOpen" class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-secondary focus:outline-none">
-                            <i class="fas fa-bars text-2xl"></i>
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
+            <div class="px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <button @click="sidebarOpen = !sidebarOpen" class="btn-ghost p-2 lg:hidden">
+                            <i class="fas fa-bars text-lg"></i>
                         </button>
-                        <div class="ml-4 hidden sm:block">
-                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Dashboard</h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Welcome back, {{ admin_name }}!</p>
+                        <div>
+                            <h1 class="text-2xl font-heading font-bold text-gray-900">Dashboard</h1>
+                            <p class="text-sm text-gray-600">Welcome back, {{ admin_name }}!</p>
                         </div>
                     </div>
-
-                    <!-- Header Actions -->
-                    <div class="flex items-center space-x-4">
-                        <div class="hidden md:flex items-center bg-gray-100 dark:bg-dark-border px-4 py-2 rounded-lg">
-                            <i class="fas fa-calendar-alt text-primary dark:text-secondary mr-2"></i>
-                            <span class="text-sm font-medium">{% now "F j, Y" %}</span>
+                    <div class="hidden sm:flex items-center space-x-4">
+                        <div class="text-sm text-gray-600">
+                            <i class="fas fa-calendar-alt mr-2"></i>
+                            {% now "F j, Y" %}
                         </div>
-
-                        <!-- Theme Toggle -->
-                        <button @click="darkMode = !darkMode" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors">
-                            <i x-show="!darkMode" class="fas fa-moon"></i>
-                            <i x-show="darkMode" class="fas fa-sun text-yellow-400"></i>
-                            <span class="sr-only">Toggle theme</span>
-                        </button>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Page Content -->
-        <div class="flex-1 p-4 sm:p-6 lg:p-8">
-            <!-- Messages -->
-            {% if messages %}
-            <div class="mb-6 space-y-4">
-                {% for message in messages %}
-                <div class="p-4 rounded-lg border {% if message.tags == 'error' %}bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-700{% elif message.tags == 'warning' %}bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-700{% else %}bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-700{% endif %}">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            {% if message.tags == 'error' %}<i class="fas fa-times-circle text-red-500"></i>
-                            {% elif message.tags == 'warning' %}<i class="fas fa-exclamation-triangle text-yellow-500"></i>
-                            {% else %}<i class="fas fa-check-circle text-green-500"></i>
-                            {% endif %}
+        <!-- Dashboard Content -->
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Published Articles</p>
+                            <p class="text-3xl font-heading font-bold text-gray-900">{{ stats.published_articles }}</p>
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium {% if message.tags == 'error' %}text-red-800 dark:text-red-200{% elif message.tags == 'warning' %}text-yellow-800 dark:text-yellow-200{% else %}text-green-800 dark:text-green-200{% endif %}">
-                                {{ message }}
-                            </p>
+                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-newspaper text-primary text-xl"></i>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-            <!-- Statistics Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                <div class="bg-gradient-to-bl from-purple-500 via-violet-400 to-purple-800 rounded-xl shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between"><p class="text-3xl font-bold">{{ stats.published_articles }}</p><div class="bg-white/20 rounded-full p-3"><i class="fas fa-newspaper text-xl"></i></div></div>
-                    <p class="text-primary-100 mt-2">Published Articles</p>
+                
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Draft Articles</p>
+                            <p class="text-3xl font-heading font-bold text-gray-900">{{ stats.draft_articles }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-alt text-secondary text-xl"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-gradient-to-tr from-lime-800 via-lime-500 to-lime-300 rounded-xl shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between"><p class="text-3xl font-bold">{{ stats.subscribers }}</p><div class="bg-white/20 rounded-full p-3"><i class="fas fa-users text-xl"></i></div></div>
-                    <p class="text-secondary-100 mt-2">Newsletter Subscribers</p>
+                
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Subscribers</p>
+                            <p class="text-3xl font-heading font-bold text-gray-900">{{ stats.subscribers }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-green-600 text-xl"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-gradient-to-bl from-amber-300 via-amber-400 to-amber-700 rounded-xl shadow-lg p-6 text-white">
-                    <div class="flex items-center justify-between"><p class="text-3xl font-bold">{{ stats.average_rating }}/5</p><div class="bg-white/20 rounded-full p-3"><i class="fas fa-star text-xl"></i></div></div>
-                    <p class="text-orange-100 mt-2">Average Rating</p>
+                
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 mb-1">Total Likes</p>
+                            <p class="text-3xl font-heading font-bold text-gray-900">{{ stats.total_likes }}</p>
+                        </div>
+                        <div class="w-12 h-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-heart text-pink-600 text-xl"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Search and Actions -->
-            <div class="bg-light-surface dark:bg-dark-surface rounded-xl shadow-sm border border-light-border dark:border-dark-border p-6 mb-6">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                    <div class="flex-1" x-data="{ searchQuery: '{{ search_query }}' }">
+            <div class="card p-6 mb-8">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <form method="get" class="flex-1 max-w-md">
                         <div class="relative">
-                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" x-model="searchQuery" @keyup.enter="window.location.href = '{% url 'admin_dashboard' %}?search=' + encodeURIComponent(searchQuery)" placeholder="Search articles..." class="w-full pl-12 pr-4 py-3 border border-light-border dark:border-dark-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors bg-light-bg dark:bg-dark-bg">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                name="search" 
+                                value="{{ search_query }}"
+                                placeholder="Search articles..."
+                                class="input pl-10"
+                            >
                         </div>
-                    </div>
-                    <a href="{% url 'create_article' %}" class="bg-secondary-500 hover:bg-secondary-600 text-white px-6 py-3 rounded-lg font-medium transition-transform transform hover:scale-105 shadow-lg flex items-center justify-center">
-                        <i class="fas fa-plus mr-2"></i> Create New Article
+                    </form>
+                    <a href="{% url 'blog:create_article' %}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create New Article
                     </a>
                 </div>
                 {% if search_query %}
-                <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span>Showing results for: </span><strong class="text-primary dark:text-secondary">"{{ search_query }}"</strong>
-                    <a href="{% url 'admin_dashboard' %}" class="ml-4 text-sm text-primary hover:underline">Clear</a>
+                <div class="mt-4 flex items-center justify-between">
+                    <p class="text-sm text-gray-600">
+                        Showing results for: <strong class="text-gray-900">"{{ search_query }}"</strong>
+                    </p>
+                    <a href="{% url 'blog:admin_dashboard' %}" class="text-sm link">
+                        Clear search
+                    </a>
                 </div>
                 {% endif %}
             </div>
 
-            <!-- Articles List -->
-            <div class="bg-light-surface dark:bg-dark-surface rounded-xl shadow-sm border border-light-border dark:border-dark-border">
-                <div class="px-6 py-4 border-b border-light-border dark:border-dark-border">
-                    <h3 class="text-xl font-semibold text-primary-700 dark:text-secondary-400">Recent Articles</h3>
+            <!-- Articles Table -->
+            <div class="card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-heading font-semibold text-gray-900">Recent Articles</h2>
                 </div>
+                
                 {% if articles %}
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left">
-                        <thead class="bg-gray-50 dark:bg-dark-surface text-xs text-gray-500 dark:text-gray-400 uppercase">
-                        <tr>
-                            <th class="px-6 py-3">Title</th>
-                            <th class="px-6 py-3">Status</th>
-                            <th class="px-6 py-3">Created</th>
-                            <th class="px-6 py-3 text-right">Actions</th>
-                        </tr>
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Title
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Author
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
                         </thead>
-                        <tbody class="divide-y divide-light-border dark:divide-dark-border">
-                        {% for article in articles %}
-                        <tr class="hover:bg-gray-50 dark:hover:bg-dark-border/50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">{{ article.title|default:"Untitled" }}</td>
-                            <td class="px-6 py-4">
-                                                <span class="px-2 py-1 font-semibold leading-tight rounded-full text-xs {% if article.status == 'published' %}bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300{% else %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300{% endif %}">
-                                                    {{ article.get_status_display }}
-                                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-gray-500 dark:text-gray-400">{{ article.created_at|date:"M d, Y" }}</td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end space-x-2">
-                                    <a href="{% url 'view_article' article.id %}" class="px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-md transition-colors">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{% url 'edit_article' article.id %}" class="px-3 py-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-md transition-colors">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-
-                                    {% if article.status == 'draft' %}
-                                    <a href="{% url 'toggle_article_status' article.id %}" class="px-3 py-1 bg-green-100 hover:bg-green-200 text-green-800 rounded-md transition-colors" title="Publish">
-                                        <i class="fas fa-upload"></i>
-                                    </a>
-                                    {% elif article.status == 'published' %}
-                                    <a href="{% url 'toggle_article_status' article.id %}" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md transition-colors" title="Unpublish">
-                                        <i class="fas fa-download"></i>
-                                    </a>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for article in articles %}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ article.title|default:"Untitled" }}
+                                            </div>
+                                            {% if article.summary %}
+                                            <div class="text-sm text-gray-500 truncate max-w-xs">
+                                                {{ article.summary|truncatechars:60 }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if article.status == 'published' %}
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Published
+                                    </span>
+                                    {% elif article.status == 'draft' %}
+                                    <span class="badge badge-warning">
+                                        <i class="fas fa-file-alt mr-1"></i>
+                                        Draft
+                                    </span>
+                                    {% else %}
+                                    <span class="badge badge-gray">
+                                        <i class="fas fa-archive mr-1"></i>
+                                        Archived
+                                    </span>
                                     {% endif %}
-
-                                    <a href="{% url 'archive_article' article.id %}" class="px-3 py-1 bg-red-100 hover:bg-red-200 text-red-800 rounded-md transition-colors" title="Archive">
-                                        <i class="fas fa-archive"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    {{ article.author.name|default:"Unknown" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    {{ article.created_at|date:"M d, Y" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex items-center justify-end space-x-2">
+                                        <a href="{% url 'blog:view_article' article.id %}" 
+                                           class="btn-ghost p-2" 
+                                           title="View">
+                                            <i class="fas fa-eye text-blue-600"></i>
+                                        </a>
+                                        <a href="{% url 'blog:edit_article' article.id %}" 
+                                           class="btn-ghost p-2" 
+                                           title="Edit">
+                                            <i class="fas fa-edit text-primary"></i>
+                                        </a>
+                                        {% if article.status == 'draft' %}
+                                        <a href="{% url 'blog:toggle_article_status' article.id %}" 
+                                           class="btn-ghost p-2" 
+                                           title="Publish">
+                                            <i class="fas fa-upload text-green-600"></i>
+                                        </a>
+                                        {% elif article.status == 'published' %}
+                                        <a href="{% url 'blog:toggle_article_status' article.id %}" 
+                                           class="btn-ghost p-2" 
+                                           title="Unpublish">
+                                            <i class="fas fa-download text-yellow-600"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{% url 'blog:archive_article' article.id %}" 
+                                           class="btn-ghost p-2" 
+                                           title="Archive"
+                                           onclick="return confirm('Are you sure you want to archive this article?')">
+                                            <i class="fas fa-archive text-gray-600"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center py-16 px-6">
-                    <i class="fas fa-newspaper text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
-                    <h4 class="text-lg font-medium mb-2">No Articles Found</h4>
-                    <p class="text-gray-500 dark:text-gray-400 mb-6">It looks like there's nothing here yet. Why not create one?</p>
-                    <a href="{% url 'create_article' %}" class="bg-secondary-500 hover:bg-secondary-600 text-white px-6 py-3 rounded-lg font-medium transition-transform transform hover:scale-105 shadow-lg">
+                <div class="px-6 py-12 text-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-newspaper text-gray-400 text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-heading font-medium text-gray-900 mb-2">
+                        {% if search_query %}No articles found{% else %}No articles yet{% endif %}
+                    </h3>
+                    <p class="text-gray-600 mb-6">
+                        {% if search_query %}
+                        Try adjusting your search terms
+                        {% else %}
+                        Get started by creating your first article
+                        {% endif %}
+                    </p>
+                    {% if not search_query %}
+                    <a href="{% url 'blog:create_article' %}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
                         Create First Article
                     </a>
+                    {% endif %}
                 </div>
                 {% endif %}
             </div>
-        </div>
-
-        <!-- Footer -->
-        <footer class="bg-light-surface dark:bg-dark-surface border-t border-light-border dark:border-dark-border mt-auto">
-            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
-                <p class="text-sm text-gray-500 dark:text-gray-400">&copy; {% now "Y" %} Ambassador's Blog. All Rights Reserved.| developed by ID-Group</p>
-            </div>
-        </footer>
-    </main>
+        </main>
+    </div>
 </div>
-</body>
-</html>
+{% endblock %}

@@ -1,10 +1,21 @@
 @import "tailwindcss";
 
 @font-face {
+  font-family: 'Viga';
+  /* From dist (theme/static/css/dist) to fonts (theme/static/fonts) */
+  src: url('../../fonts/Viga-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'RadioCanada';
-  src: url('/static/fonts/RadioCanada-VariableFont.ttf') format('truetype');
+  /* From dist (theme/static/css/dist) to fonts (theme/static/fonts/Radio_Canada) */
+  src: url('../../fonts/Radio_Canada/RadioCanada-VariableFont_wdth,wght.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
+  font-display: swap;
 }
 
 /**
@@ -14,4 +25,8 @@
   * If your final CSS file is not being updated after code changes, you may want to broaden or narrow
   * the scope of this path.
   */
+@theme {
+  --font-viga: 'Viga';
+  --font-radioCanada: 'RadioCanada';
+}
 @source "../../../**/*.{html,py,js}";

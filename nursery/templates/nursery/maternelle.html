@@ -1,0 +1,637 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Home Page</title>
+  {% tailwind_css %}
+</head>
+<style>
+
+  body {
+    font-family: 'Radio Canada', sans-serif;
+    color: #1e293b;
+    overflow-x: hidden;
+  }
+  a, h1, h2, h3, span{
+    font-family: 'Viga', sans-serif;
+  }
+  .font-viga {
+    font-family: 'Viga', sans-serif;
+    font-weight: 600;
+  }
+  .font-radio {
+    font-family: 'Radio Canada', sans-serif;
+  }
+
+  .maternelle-hero-bg {
+    background-image: url("../../static/img/bg-hero.jpeg");
+    height: 80vh;
+  }
+
+  .scrolled {
+    background-color: #4d179a;
+    /* Fond sombre pour la navbar */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: sticky;
+  }
+
+  .scrolled .text-white {
+    color: #fff;
+  }
+
+  .scrolled a {
+    color: #fff;
+  }
+
+  /* Masque la barre de défilement pour les navigateurs basés sur WebKit (Chrome, Safari, etc.) */
+  #activities-slider::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Masque la barre de défilement pour Internet Explorer, Edge, et Firefox */
+  #activities-slider,
+  #blog-slider {
+    -ms-overflow-style: none;
+    /* IE et Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+</style>
+
+<body id="top" class="text-gray-900 border-box">
+  <header id="navbar"
+    class="absolute top-0 left-0 right-0 z-20 transition-all duration-300 ease-in-out py-4 flex items-center px-6 lg:px-15 justify-between text-white w-full">
+    <!-- <div
+        class="container  py-4 flex items-center justify-between text-white w-full"
+      > -->
+    <div class="flex items-center">
+      <img src="{%static 'img/logo-ambassadeurs.png'%}" alt="logo-ambassadeurs"
+        class="max-w-1/6 sm:max-w-1/8 lg:max-w-1/10 xl:max-w-1/12 mr-2">
+      <a href="/" class="md:text-2xl font-bold tracking-wide text-xl">GSBL Les Ambassadeurs</a>
+    </div>
+
+    <nav class="flex items-center xl:justify-between text-sm font-semibold xl:flex-3/4 xl:w-full">
+      <ul class="hidden xl:flex items-center space-x-8 min-space">
+        <a href="#" class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Admissions</a>
+        <a href="{% url 'nursery:about' %}"
+          class="py-2 hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">A propos</a>
+
+        <a href="{% url 'nursery:contact'%}"
+          class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Contacts</a>
+        <a href="{% url 'blog:blog_home' %}" class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Notre Blog</a>
+
+      </ul>
+      <button id="menu-button" class="flex items-center space-x-2 text-white hover:text-orange-400 focus:outline-none">
+        <span class="hidden md:block text-lg">Menu</span>
+        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+    <!-- </div> -->
+  </header>
+  <div id="fullscreen-nav"
+    class="fixed top-0 left-0 h-full w-full z-50 bg-white md:bg-gray-100 text-gray-900 overflow-y-auto hidden">
+    <div class="container mx-auto px-4 md:px-8 py-8 md:py-16 h-full">
+      <div class="flex justify-end">
+        <button id="fullscreen-close-button"
+          class="text-gray-900 hover:text-orange-500 transition-colors duration-300 focus:outline-none">
+          <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="h-full mt-4 md:mt-8 flex flex-col md:flex-row md:space-x-12">
+        <div class="hidden md:block md:w-1/2 ">
+          <div class="grid grid-cols-1 gap-4 lg:gap-6">
+            <a href="#- class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/nursery-students.jpeg' %}" alt="Preschool"
+                class="w-full h-48 object-cover transform transition-transform duration-1000 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-lime-600/10 bg-opacity-70 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Garderie</h3>
+              </div>
+            </a>
+            <a href="{% url 'nursery:maternelle'%}" class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/students-cosplay.jpeg' %}" alt="Junior School"
+                class="w-full h-48 object-cover transform transition-transform duration-1000 object-top group-hover:scale-110" />
+              <div class="absolute inset-0 bg-violet-700/10 bg-opacity-70 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Maternelle</h3>
+              </div>
+            </a>
+            <a href="#" class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/majorettes-2.jpeg' %}" alt="Senior School"
+                class="w-full h-48 object-cover transform transition-transform duration-1000 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-orange-500/10 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Primaire</h3>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="md:w-1/3 pt-8 md:pt-0">
+          <h4 class="text-2xl font-bold text-violet-800 mb-4 border-b md:pb-4 border-gray-300 pl-4">
+            Navigation Rapide
+          </h4>
+          <ul class="flex flex-col space-y-2 pl-4">
+            <li>
+              <a href="{% url 'nursery:home' %}" class="block py-2 text-lg hover:text-orange-500">Accueil</a>
+            </li>
+            <li>
+              <a href="#" class="block py-2 text-lg hover:text-orange-500">Admissions</a>
+            </li>
+            <li>
+              <a href="{% url 'nursery:about' %}" class="block py-2 text-lg hover:text-orange-500">A propos</a>
+            </li>
+            <li>
+              <a href="{% url 'nursery:contact'%}" class="block py-2 text-lg hover:text-orange-500">Contact</a>
+            </li>
+            <li>
+              <a href="{% url 'blog:blog_home' %}" class="block py-2 text-lg hover:text-orange-500">Publications</a>
+            </li>
+          </ul>
+          <ul class="flex flex-col space-y-2 border-t border-gray-300 pt-4 mt-4 pl-4">
+            <li class="py-2 block text-lg text-violet-800 font-semibold">
+              Nos écoles
+            </li>
+            <li>
+              <a href="{% url 'daycare:home' %}" class="block py-2 text-lg hover:text-orange-500 font-medium">Garderie</a>
+            </li>
+            <li>
+              <a href="{%url 'nursery:maternelle'%}" class="block py-2 text-lg hover:text-orange-500 font-medium">Maternelle</a>
+            </li>
+            <li>
+              <a href="{% url 'primaire:home_en' %}" class="block py-2 text-lg hover:text-orange-500 font-medium">Primaire</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <section id="hero"
+    class="maternelle-hero-bg relative bg-violet-700 dark:bg-violet-900 text-white pt-30 flex justify-center items-center mb-30">
+    <div class="absolute inset-0 bg-violet-950/70"></div>
+
+    <div class="container relative text-center z-10 md:px-0">
+      <div class="border-4 md:border-8 pt-15 pb-20 lg:pb-25 mx-4 px-2 ">
+        <h1 class="text-3xl md:text-4xl lg:text-6xl font-extrabold mb-4">
+          Bienvenue à <span class="text-orange-400">la Maternelle</span> du GSBLA
+        </h1>
+        <p class="text-md md:text-lg lg:text-xl mb-8 font-semibold">
+          Le premier pas vers l'excellence, dans un environnement rempli d'amour et d'apprentissage.
+        </p>
+      </div>
+
+      <div class="absolute w-full text-sm md:text-md lg:text-lg font-medium text-gray-50 bg-orange-400 bottom-10 py-2">
+        <p class="mb-1">
+          <span class="font-bold">Jours d'ouverture :</span> Lundi - Vendredi
+        </p>
+        <p>
+          <span class="font-bold">Horaires :</span> 07h30 - 13h30
+        </p>
+      </div>
+    </div>
+
+  </section>
+
+
+  <section class="py-20 bg-violet-100 dark:bg-gray-900 mb-30">
+    <div class="container mx-auto px-4 md:px-8">
+      <h2 class="text-3xl md:text-4xl font-extrabold text-violet-900 dark:text-violet-300 text-center mb-16">
+        Notre Philosophie de la Maternelle
+      </h2>
+
+      <div class="max-w-4xl mx-auto text-center mb-12">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+          <h3 class="text-2xl font-bold text-orange-500 mb-4">Une pédagogie centrée sur l'enfant</h3>
+          <p class="text-lg text-gray-700 dark:text-gray-300">
+            Notre approche éducative repose sur l'<b>apprentissage par le jeu</b> et l'<b>apprentissage par les
+              projets</b>. Nous croyons que les enfants s'épanouissent pleinement en explorant et en créant, tout en
+            construisant les bases de leur savoir.
+          </p>
+        </div>
+      </div>
+
+      <div class="mb-12">
+        <h3 class="text-2xl font-bold text-violet-900 dark:text-violet-300 text-center mb-8">
+          L'excellence GSBL Ambassadeurs
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 text-center transform transition-transform duration-300 hover:scale-105">
+            <div class="flex justify-center mb-4">
+              <svg class="h-10 w-10 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1v5a3 3 0 01-3 3H6a3 3 0 01-3-3v-5H2a1 1 0 01-1-1V7a1 1 0 011-1h3a1 1 0 011-1V4z" />
+              </svg>
+            </div>
+            <h4 class="font-bold text-xl text-gray-800 dark:text-gray-200 mb-2">Accueil chaleureux & Bilinguisme
+              intégral</h4>
+            <p class="text-gray-600 dark:text-gray-400">Nous accueillons chaque enfant avec bienveillance et leur
+              offrons une immersion totale en français et en anglais dès les premières années.</p>
+          </div>
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 text-center transform transition-transform duration-300 hover:scale-105">
+            <div class="flex justify-center mb-4">
+              <svg class="h-10 w-10 text-orange-500 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2l-10 5v10l10 5 10-5v-10l-10-5zm-2 14l-4-4 1.41-1.41L10 12.17l5.59-5.59L17 8l-7 7z" />
+              </svg>
+            </div>
+            <h4 class="font-bold text-xl text-gray-800 dark:text-gray-200 mb-2">Suivi individualisé & Savoir-être</h4>
+            <p class="text-gray-600 dark:text-gray-400">Chaque enfant bénéficie d'un suivi personnalisé pour cultiver
+              des valeurs essentielles comme la propreté, la politesse et la responsabilité.</p>
+          </div>
+          <div
+            class="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 text-center transform transition-transform duration-300 hover:scale-105">
+            <div class="flex justify-center mb-4">
+              <svg class="h-10 w-10 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6.253v13m0-13C10.832 5.418 9.225 5 7.5 5S4.168 5.418 3 6.253v13C4.168 18.418 5.775 18 7.5 18s3.332.418 4.5 1.253m0-13C13.168 5.418 14.775 5 16.5 5s3.332.418 4.5 1.253v13C19.832 18.418 18.225 18 16.5 18s-3.332-.418-4.5-1.253" />
+              </svg>
+            </div>
+            <h4 class="font-bold text-xl text-gray-800 dark:text-gray-200 mb-2">Un caractère de leader & Matériel
+              adéquat</h4>
+            <p class="text-gray-600 dark:text-gray-400">Nous construisons le caractère de leader chez chaque enfant, en
+              nous appuyant sur un matériel d’apprentissage de pointe, adapté à leur âge et à notre système.</p>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="text-2xl font-bold text-violet-900 dark:text-violet-300 text-center mb-8">
+          Nos Objectifs de Développement
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div class="relative p-0.5 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-orange-500">
+            <div class="absolute -top-6 left-6 bg-orange-500 text-white rounded-full p-2">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </div>
+            <div>
+              <img src="{%static 'img/enfants-garderie-2.jpeg'%}" alt="enfants-souriants"
+                class="object-cover h-50 w-full rounded-xl">
+            </div>
+          </div>
+          <div class="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-violet-700">
+            <div class="absolute -top-6 left-6 bg-violet-700 text-white rounded-full p-2">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
+            </div>
+            <div class="mt-6">
+              <h4 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-2">Développement moral</h4>
+              <p class="text-gray-600 dark:text-gray-400">Les enfants développent de bonnes attitudes citoyennes et
+                morales, telles que la politesse, le respect et la responsabilité.</p>
+            </div>
+          </div>
+          <div class="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-orange-500">
+            <div class="absolute -top-6 left-6 bg-orange-500 text-white rounded-full p-2">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm-1-10.5V7h2v4.5H16V14h-3v4.5h-2V14H8v-2h3z" />
+              </svg>
+            </div>
+            <div class="mt-6">
+              <h4 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-2">Compétences bilingues</h4>
+              <p class="text-gray-600 dark:text-gray-400">Chaque enfant doit pouvoir s'exprimer et écrire couramment en
+                Anglais et en Français.</p>
+            </div>
+          </div>
+          <div class="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-violet-700">
+            <div class="absolute -top-6 left-6 bg-violet-700 text-white rounded-full p-2">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            </div>
+            <div class="mt-6">
+              <h4 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-2">Instaurer l'amour et l'intégrité</h4>
+              <p class="text-gray-600 dark:text-gray-400">Implanter les valeurs de l'amour, de la rigueur et de
+                l'intégrité chez chaque enfant pour un futur épanoui.</p>
+            </div>
+          </div>
+          <div class="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-orange-500">
+            <div class="absolute -top-6 left-6 bg-orange-500 text-white rounded-full p-2">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+              </svg>
+            </div>
+            <div class="mt-6">
+              <h4 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-2">Développer le leadership</h4>
+              <p class="text-gray-600 dark:text-gray-400">Construire le caractère de leader local et global chez chaque
+                enfant dès le plus jeune âge.</p>
+            </div>
+          </div>
+
+
+          <div class="relative p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border-t-4 border-violet-700">
+            <div class="absolute -top-6 left-6 bg-violet-700 text-white rounded-full p-2">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z" />
+              </svg>
+
+
+            </div>
+            <div class="mt-6">
+              <h4 class="font-bold text-lg text-gray-800 dark:text-gray-200 mb-2">L'esprit d'entreprenariat</h4>
+              <p class="text-gray-600 dark:text-gray-400">Nous développons chez l'enfant l'esprit d'entreprise, de
+                créativité, de curiosité et d'excellence.</p>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+  </section>
+
+
+  <section class="py-20 bg-gray-100 dark:bg-gray-800 m">
+    <div class="container mx-auto px-4 md:px-8">
+      <h2 class="text-3xl md:text-4xl font-bold text-violet-700 dark:text-violet-300 text-center mb-12">
+        Une Journée Typique à la Maternelle
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div class="bg-gray-100 dark:bg-gray-900 rounded-2xl shadow-lg p-8 flex flex-col justify-between">
+          <div class="flex items-center mb-4">
+            <div
+              class="bg-violet-700 text-white rounded-full h-12 w-12 flex items-center justify-center font-bold text-xl mr-4">
+              1</div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">L'Accueil et le Rituel du Matin</h3>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 mb-4">
+            La journée commence par un accueil chaleureux et des animations. Les enfants participent ensuite à des jeux
+            libres pour s'acclimater, suivis d'un contrôle de présence et d'une séance de lecture fonctionnelle pour
+            éveiller leur esprit.
+          </p>
+          <div class="rounded-lg overflow-hidden shadow-md">
+            <img src="{%static 'img/rangs-maternelle.jpeg'%}" alt="Accueil des enfants à l'école"
+              class="w-full h-48 object-cover border-3 border-orange-500 border-dashed">
+          </div>
+        </div>
+
+        <div class="bg-gray-100 dark:bg-gray-900 rounded-2xl shadow-lg p-8 flex flex-col justify-between">
+          <div class="flex items-center mb-4">
+            <div
+              class="bg-violet-700 text-white rounded-full h-12 w-12 flex items-center justify-center font-bold text-xl mr-4">
+              2</div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Ateliers et Savoir-Faire</h3>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 mb-4">
+            Après une pause hygiène, les enfants se lancent dans des activités d’apprentissage riches et variées. Notre
+            programme équilibre parfaitement le développement des connaissances et l'acquisition des savoir-faire
+            essentiels.
+          </p>
+          <div class="rounded-lg overflow-hidden shadow-md">
+            <img src="{%static 'img/nursery-group.jpeg'%}" alt="Ateliers d'apprentissage"
+              class="w-full h-48 object-cover border-3 border-orange-500 border-dashed">
+          </div>
+        </div>
+
+        <div class="bg-gray-100 dark:bg-gray-900 rounded-2xl shadow-lg p-8 flex flex-col justify-between">
+          <div class="flex items-center mb-4">
+            <div
+              class="bg-violet-700 text-white rounded-full h-12 w-12 flex items-center justify-center font-bold text-xl mr-4">
+              3</div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Goûter, Repos et Jeux</h3>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 mb-4">
+            C'est le moment de recharger les batteries ! Les enfants profitent d'un goûter sain, suivi d'une période de
+            repos pour ceux qui le souhaitent, et de jeux libres pour les plus énergiques. L'équilibre parfait entre
+            activité et détente.
+          </p>
+          <div class="rounded-lg overflow-hidden shadow-md">
+            <img src="{%static 'img/baby-drawing.jpeg'%}" alt="Goûter et temps de repos"
+              class="w-full h-48 object-cover border-3 border-orange-500 border-dashed">
+          </div>
+        </div>
+
+        <div class="bg-gray-100 dark:bg-gray-900 rounded-2xl shadow-lg p-8 flex flex-col justify-between ">
+          <div class="flex items-center mb-4">
+            <div
+              class="bg-violet-700 text-white rounded-full h-12 w-12 flex items-center justify-center font-bold text-xl mr-4">
+              4</div>
+            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200">Activités de l'Après-midi et Sortie</h3>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300 mb-4">
+            La journée se conclut par une seconde session d'activités d’apprentissage. Pour la sécurité de tous, la
+            sortie des enfants se fait avec le badge d’inscription remis aux parents. C'est la garantie d'une transition
+            en toute sérénité.
+          </p>
+          <div class="rounded-lg overflow-hidden shadow-md">
+            <img src="{%static 'img/eleves-maternelle.jpeg'%}" alt="Sortie des classes"
+              class="w-full h-48 object-cover border-3 border-orange-500 border-dashed">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="py-30 bg-white dark:bg-gray-900 ">
+  <div class="container mx-auto px-4 md:px-8">
+    <h2 class="text-3xl md:text-4xl font-bold text-violet-700 dark:text-violet-300 text-center mb-12">
+      Communication et Préparation
+    </h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 transform transition-transform duration-300 hover:scale-[1.02]">
+        <div class="flex items-center mb-6">
+          <div class="bg-orange-500 text-white rounded-full p-3 mr-4">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Une communication proche et efficace</h3>
+        </div>
+        <div class="space-y-6 text-gray-700 dark:text-gray-300">
+          <p class="text-lg">
+            Nous tenons les parents informés au quotidien pour garantir une collaboration étroite et sereine.
+          </p>
+          <ul class="list-none space-y-4">
+            <li class="flex items-start">
+              <svg class="h-6 w-6 text-violet-700 mr-2 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-8v-2h2v2h-2zm0-4V6h2v4h-2z" />
+            </svg>
+              <span>
+                <strong class="font-semibold">Groupes WhatsApp de classe :</strong> Des mises à jour en temps réel et un contact direct avec les enseignants.
+              </span>
+            </li>
+            <li class="flex items-start">
+              <svg class="h-6 w-6 text-violet-700 mr-2 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-8v-2h2v2h-2zm0-4V6h2v4h-2z" />
+            </svg>
+              <span>
+                <strong class="font-semibold">Convocation individuelle :</strong> Des rencontres personnalisées pour discuter du développement de votre enfant quand c'est nécessaire.
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 transform transition-transform duration-300 hover:scale-[1.02] h-full">
+        <div class="flex items-center mb-6">
+          <div class="bg-violet-700 text-white rounded-full p-3 mr-4">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2m7.86 1l-.4 2H7m15 0a1 1 0 01-1 1H9a1 1 0 01-1-1v-2a1 1 0 011-1h6.635m4.365 0L17 4h2l2 2m-2 4a2 2 0 11-4 0 2 2 0 014 0zm-10 0a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-800 dark:text-gray-200">Conseils de Préparation</h3>
+        </div>
+        <p class="text-lg text-gray-700 dark:text-gray-300 mb-4">
+          Pour une journée réussie, voici quelques éléments à prévoir pour votre enfant.
+        </p>
+        <ul class="list-none space-y-4 text-gray-700 dark:text-gray-300">
+          <li class="flex items-start">
+            <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-8v-2h2v2h-2zm0-4V6h2v4h-2z" />
+            </svg>
+            <span>
+              <strong class="font-semibold">Goûter et collations :</strong> Des gamelles et collations pour l'énergie de la journée.
+            </span>
+          </li>
+          <li class="flex items-start">
+            <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0 mt-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-8v-2h2v2h-2zm0-4V6h2v4h-2z" />
+            </svg>
+            <span>
+              <strong class="font-semibold">Eau potable :</strong> L'eau en bouteille pour l'hydratation, bien que l'école dispose également d'une source d'eau potable.
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <section class="py-20 bg-violet-100  text-gray-900 dark:bg-violet-900">
+    <div class="container mx-auto px-4 md:px-8 text-center">
+      <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+        Donnez à votre enfant le meilleur départ
+      </h2>
+      <p class="text-lg md:text-xl max-w-3xl mx-auto mb-8">
+        Rejoignez notre grande famille et offrez à votre enfant une éducation d'exception, basée sur l'amour,
+        l'apprentissage et l'épanouissement.
+      </p>
+      <a href="{% url 'nursery:contact' %}"
+        class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-colors duration-300 transform hover:scale-105">
+        Contactez-nous pour une visite
+      </a>
+    </div>
+  </section>
+
+    <div class="container mx-auto px-8 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+            <div>
+                <h4 class="font-bold text-white mb-4 text-xl">Liens rapides</h4>
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'nursery:home' %}" class="hover:text-orange-400 transition-colors duration-300">Accueil</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'nursery:about' %}" class="hover:text-orange-400 transition-colors duration-300">À propos de nous</a>
+                    </li>
+                    <li>
+                        <a href="" class="hover:text-orange-400 transition-colors duration-300">Garderie</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'nursery:maternelle'%}" class="hover:text-orange-400 transition-colors duration-300">Maternelle</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'primaire:home_en' %}" class="hover:text-orange-400 transition-colors duration-300">Primaire</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'blog:blog_home' %}" class="hover:text-orange-400 transition-colors duration-300">Publications</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-white mb-4 text-xl">Nous contacter</h4>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <div>
+                            <span class="font-semibold">Email:</span><br>
+                            <a href="mailto:contact@ambassadeurs.edu" class="hover:text-orange-400">contact@ambassadeurs.edu</a>
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.158l-2.022 1.011a8.17 8.17 0 001.523 1.523l1.011-2.022a1 1 0 011.158-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <div>
+                            <span class="font-semibold">Téléphone:</span><br>
+                            <a href="tel:+237699090190">+237 699 090 190</a><br>
+                            <a href="tel:+237677198810">+237 677 198 810</a><br>
+                            <a href="tel:+237695955402">+237 695 955 402</a><br>
+                            <a href="tel:+237691377878">+237 691 377 878</a>
+                            
+                        </div>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <div>
+                            <span class="font-semibold">Adresse:</span><br>
+                            Quartier Tigaza, Bertoua, Cameroun
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class=" border-t border-gray-200 pt-8 md:pt-0 md:border-0 ">
+                <h4 class="font-bold text-white mb-4 text-xl">Newsletter</h4>
+                <p class="text-gray-400 text-sm mb-4">
+                    Restez informés des dernières actualités en vous abonnant à notre newsletter.
+                </p>
+                <form action="#" method="POST" class="flex flex-col space-y-2">
+                    <input type="text" name="name" placeholder="Votre nom" class="py-2 px-4 rounded-md text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 border-2 focus:border-0 border-orange-500">
+                    <input type="email" name="email" placeholder="Votre email" class="py-2 px-4 rounded-md text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 border-2 focus:border-0 border-orange-500">
+
+                    <button type="submit" class="bg-orange-500 text-white font-bold py-2 px-4 rounded-md hover:bg-orange-600 transition-colors duration-300">
+                        S'abonner
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-violet-950 dark:bg-gray-950 py-4 px-8 text-center text-gray-400 text-sm">
+      <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between">
+        <p class="mb-4 lg:mb-0">
+          © {% now "Y" %} Groupe Scolaire Bilingue Les Ambassadeurs. Tous droits
+          réservés.
+        </p>
+        <div class="text-center lg:text-right">
+            <p>Conçu avec <span class="text-red-500">❤</span> par ID-Group</p>
+        </div>
+      </div>
+    </div>
+  <a id="toTopButton" href="#top"
+    class="flex items-center text-gray-100 hover:bg-orange-600/85 bg-violet-700/80 fixed bottom-10 right-6 p-2 font-bold rounded-full shadow-lg transition-opacity duration-300 invisible pointer-events-none z-50">
+    <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd"
+        d="M14.707 12.707a1 1 0 01-1.414-1.414L10 7.586 6.707 10.879a1 1 0 11-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+        clip-rule="evenodd"></path>
+    </svg>
+  </a>
+
+  <script src="{% static 'js/app.js' %}"></script>
+
+</html>

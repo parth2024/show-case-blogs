@@ -1,670 +1,350 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ article.title }} - Ambassador's Blog</title>
-    <meta name="description" content="{{ article.summary|default:article.title|truncatechars:160 }}">
-    <meta name="author" content="{{ article.author.name }}">
-    <meta name="keywords" content="Ambassador's Blog, {{ article.title }}, education, school">
+{% extends 'blog/base.html' %}
+{% load static %}
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:title" content="{{ article.title }}">
-    <meta property="og:description" content="{{ article.summary|default:article.title|truncatechars:160 }}">
-    <meta property="og:site_name" content="Ambassador's Blog">
-    {% if article.showcase_image and article.showcase_image.link %}
-    <meta property="og:image" content="{{ article.showcase_image.link }}">
-    {% endif %}
-    <meta property="article:author" content="{{ article.author.name }}">
-    <meta property="article:published_time" content="{{ article.published_at|date:'c' }}">
+{% block title %}{{ article.title }} - The Ambassadors Blog{% endblock %}
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
-    <meta property="twitter:title" content="{{ article.title }}">
-    <meta property="twitter:description" content="{{ article.summary|default:article.title|truncatechars:160 }}">
-    {% if article.showcase_image and article.showcase_image.link %}
-    <meta property="twitter:image" content="{{ article.showcase_image.link }}">
-    {% endif %}
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Article Header -->
+    <header class="bg-white border-b border-gray-200">
+        <div class="max-w-5xl mx-auto px-4 py-8">
+            <!-- Breadcrumb -->
+            <nav class="text-sm mb-6">
+                <a href="{% url 'blog:blog_home' %}" class="text-primary hover:text-primary-dark">
+                    <i class="fas fa-home mr-1"></i>Blog
+                </a>
+                <span class="text-gray-400 mx-2">/</span>
+                <span class="text-gray-600">{{ article.title|truncatechars:50 }}</span>
+            </nav>
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="{{ request.build_absolute_uri }}">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    {%load static%}
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'ambassador-blue': '#1e40af',
-                        'ambassador-lime': '#84cc16',
-                        'ambassador-orange': '#ff8c00',
-                        'ambassador-deep-orange': '#ff4500',
-                        'ambassador-purple': '#7c3aed',
-                        'ambassador-violet': '#8b5cf6',
-                        'ambassador-deep-purple': '#6d28d9'
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            font-family: 'Radio Canada', sans-serif;
-        }
-        h1, h2, a {
-            font-family: 'Viga', sans-serif;
-        }
-        h3, h4, h5, h6 {
-            font-family: 'Radio Canada', sans-serif;
-        }
-        footer h3 {
-            font-family: 'Viga', sans-serif;
-        }
-
-        /* Improved content styling */
-        .article-content {
-            line-height: 1.8;
-            font-size: 1.125rem;
-            color: #374151;
-        }
-        .article-content h1, .article-content h2, .article-content h3 {
-            margin: 1.5em 0 0.75em 0;
-            font-weight: 600;
-            color: #111827;
-        }
-        .article-content h1 {
-            font-size: 2.25em;
-            border-bottom: 2px solid #84cc16;
-            padding-bottom: 0.5rem;
-        }
-        .article-content h2 {
-            font-size: 1.875em;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 0.5rem;
-        }
-        .article-content h3 {
-            font-size: 1.5em;
-        }
-        .article-content p {
-            margin-bottom: 1.5em;
-        }
-        .article-content ul, .article-content ol {
-            margin: 1.5em 0;
-            padding-left: 2em;
-        }
-        .article-content li {
-            margin-bottom: 0.75em;
-        }
-        .article-content blockquote {
-            border-left: 4px solid #84cc16;
-            padding-left: 1.5em;
-            margin: 2em 0;
-            font-style: italic;
-            color: #6b7280;
-            background-color: #f9fafb;
-            padding: 1.5em;
-            border-radius: 0.5rem;
-        }
-        .article-content code {
-            background-color: #f3f4f6;
-            padding: 0.25em 0.5em;
-            border-radius: 0.25rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9em;
-        }
-        .article-content pre {
-            background-color: #1f2937;
-            color: #f9fafb;
-            padding: 1.5em;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            margin: 2em 0;
-            line-height: 1.5;
-        }
-        .article-content pre code {
-            background-color: transparent;
-            color: inherit;
-            padding: 0;
-        }
-        .article-content table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2em 0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .article-content th, .article-content td {
-            border: 1px solid #d1d5db;
-            padding: 0.75em 1em;
-            text-align: left;
-        }
-        .article-content th {
-            background-color: #f3f4f6;
-            font-weight: 600;
-        }
-        .article-content tr:nth-child(even) {
-            background-color: #f9fafb;
-        }
-        .article-content img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 2rem auto;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        @media (min-width: 768px) {
-            .article-content img {
-                max-width: 80%;
-            }
-        }
-
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .line-clamp-3 {
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            .article-content {
-                color: #d1d5db;
-            }
-            .article-content h1, .article-content h2, .article-content h3 {
-                color: #f9fafb;
-            }
-            .article-content h2 {
-                border-bottom-color: #4b5563;
-            }
-            .article-content blockquote {
-                background-color: #374151;
-                color: #d1d5db;
-            }
-            .article-content code {
-                background-color: #374151;
-            }
-            .article-content th {
-                background-color: #374151;
-            }
-            .article-content tr:nth-child(even) {
-                background-color: #374151;
-            }
-        }
-    </style>
-</head>
-<body class="bg-gray-50 min-h-screen">
-<!-- Navigation -->
-<nav class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-    <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-14 h-14 bg-transparent rounded-full flex items-center justify-center">
-                    <img src="{% static 'images/ambassadors_logo.png' %}" alt="logo" srcset="">
-                </div>
-                <div>
-                    <a href="{% url 'blog_home' %}" class="text-2xl font-bold text-gray-900 hover:text-orange-500 transition-colors">
-                        Ambassador's Blog
-                    </a>
-                    <p class="text-sm text-gray-600">Love - Work - Success</p>
-                </div>
+            <!-- Categories -->
+            {% if article.categories.all %}
+            <div class="flex flex-wrap gap-2 mb-4">
+                {% for category in article.categories.all %}
+                <span class="badge badge-primary">{{ category.name }}</span>
+                {% endfor %}
             </div>
-            <div class="flex items-center space-x-4">
-                <a href="{% url 'blog_home' %}" class="text-gray-600 hover:text-orange-500 transition-colors">
-                    <i class="fas fa-home"></i>
-                    <span class="ml-1 hidden sm:inline">Home</span>
-                </a>
-                <a href="{% url 'blog_home' %}#articles" class="text-gray-600 hover:text-orange-500 transition-colors">
-                    <i class="fas fa-newspaper"></i>
-                    <span class="ml-1 hidden sm:inline">Articles</span>
-                </a>
-                <a href="#newsletter" class="text-gray-600 hover:text-orange-500 transition-colors">
-                    <i class="fas fa-envelope"></i>
-                    <span class="ml-1 hidden sm:inline">Subscribe</span>
-                </a>
-            </div>
-        </div>
-    </div>
-</nav>
+            {% endif %}
 
-<!-- Breadcrumb -->
-<div class="bg-white border-b border-gray-200">
-    <div class="max-w-[80%] mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <nav class="flex" aria-label="Breadcrumb">
-            <ol class="flex items-center space-x-2 text-sm">
-                <li>
-                    <a href="{% url 'blog_home' %}" class="text-gray-500 hover:text-orange-500 transition-colors">
-                        <i class="fas fa-home"></i>
-                    </a>
-                </li>
-                <li>
-                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                    <a href="{% url 'blog_home' %}#articles" class="text-gray-500 hover:text-orange-500 transition-colors">Articles</a>
-                </li>
-                <li>
-                    <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
-                    <span class="text-gray-900 font-medium truncate max-w-xs">{{ article.title|truncatechars:50 }}</span>
-                </li>
-            </ol>
-        </nav>
-    </div>
-</div>
-
-<!-- Article Header -->
-<article class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <header class="mb-8">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+            <!-- Title -->
+            <h1 class="text-4xl lg:text-5xl font-heading font-black text-gray-900 mb-6 leading-tight">
                 {{ article.title }}
             </h1>
 
+            <!-- Summary -->
             {% if article.summary %}
-            <div class="text-xl text-gray-600 mb-6 max-w-3xl mx-auto leading-relaxed bg-amber-50 p-6 rounded-t-r-lg rounded-b-r-lg border-l-4 border-amber-400 shadow-xs">
-                <p class="font-semibold text-amber-800 mb-2">Summary:</p>
-                <p class="text-amber-700">{{ article.summary }}</p>
-            </div>
+            <p class="text-xl text-gray-600 mb-6 leading-relaxed">
+                {{ article.summary }}
+            </p>
             {% endif %}
 
-            <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
+            <!-- Author & Meta -->
+            <div class="flex flex-wrap items-center gap-6 text-sm text-gray-600">
                 <div class="flex items-center">
-                    <div class="w-8 h-8 bg-gradient-to-r from-ambassador-lime to-green-500 rounded-full flex items-center justify-center mr-3">
-                        <i class="fas fa-user text-white text-xs"></i>
+                    <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                        {{ article.author.name|first|upper }}
                     </div>
-                    <span>By <strong>{{ article.author.name }}</strong></span>
+                    <div>
+                        <div class="font-semibold text-gray-900">{{ article.author.name }}</div>
+                        <div class="text-xs text-gray-500">Author</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <i class="fas fa-calendar mr-2 text-gray-400"></i>
+                    {{ article.published_at|date:"F d, Y" }}
                 </div>
 
                 <div class="flex items-center">
-                    <i class="fas fa-calendar-alt text-ambassador-blue mr-2"></i>
-                    <span>{{ article.published_at|date:"F j, Y" }}</span>
+                    <i class="fas fa-clock mr-2 text-gray-400"></i>
+                    {{ reading_time }} min read
                 </div>
 
                 <div class="flex items-center">
-                    <i class="fas fa-clock text-ambassador-blue mr-2"></i>
-                    <span>{{ reading_time }} min read</span>
-                </div>
-
-                <div class="flex items-center">
-                    <i class="fas fa-eye text-ambassador-blue mr-2"></i>
-                    <span>{{ article.view_count }} views</span>
+                    <i class="fas fa-eye mr-2 text-gray-400"></i>
+                    {{ article.view_count|default:0 }} views
                 </div>
             </div>
         </div>
-
-        <!-- Featured Image -->
-        {% if article.showcase_image and article.showcase_image.link %}
-        <div class="my-8 rounded-xl overflow-hidden shadow-lg">
-            <img src="{{ article.showcase_image.link }}"
-                 alt="{{ article.showcase_image.wording|default:article.title }}"
-                 class="w-full h-auto max-h-96 object-cover">
-            {% if article.showcase_image.caption %}
-            <div class="bg-gray-100 p-4 text-center text-gray-600 italic">
-                {{ article.showcase_image.caption }}
-            </div>
-            {% endif %}
-        </div>
-        {% endif %}
     </header>
 
     <!-- Article Content -->
-    <div class="article-content bg-white rounded-xl p-8 shadow-sm">
-        {{ processed_content|safe }}
-    </div>
-
-    <!-- Article Metrics -->
-    <div class="flex justify-center items-center space-x-8 my-8 py-4 border-y border-gray-200">
-        <div class="text-center">
-            <div class="text-2xl font-bold text-ambassador-purple">{{ article.likes.count }}</div>
-            <div class="text-sm text-gray-600">Likes</div>
-        </div>
-        <div class="text-center">
-            <div class="text-2xl font-bold text-ambassador-purple">{{ article.comments.count }}</div>
-            <div class="text-sm text-gray-600">Comments</div>
-        </div>
-        <div class="text-center">
-            <div class="text-2xl font-bold text-ambassador-purple">{{ article.view_count }}</div>
-            <div class="text-sm text-gray-600">Views</div>
-        </div>
-    </div>
-
-    <!-- Article Actions -->
-    <div class="flex flex-col sm:flex-row justify-center items-center gap-4 my-8">
-        <form method="post" action="{% url 'like_article' article.id %}" class="w-full sm:w-auto">
-            {% csrf_token %}
-            <button type="submit" class="w-full bg-ambassador-orange hover:bg-ambassador-deep-orange text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center">
-                <i class="fas fa-heart mr-2"></i>
-                Like this Article
-            </button>
-        </form>
-
-        <button onclick="window.scrollTo({top: document.getElementById('comments').offsetTop, behavior: 'smooth'})"
-                class="w-full sm:w-auto bg-white border border-ambassador-purple text-ambassador-purple hover:bg-ambassador-purple hover:text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center">
-            <i class="fas fa-comment mr-2"></i>
-            Add a Comment
-        </button>
-    </div>
-
-    <!-- Article Footer -->
-    <footer class="mt-12 pt-8 border-t border-gray-200">
-        <!-- Comments Section -->
-        <div id="comments" class="mb-12">
-            <h3 class="text-2xl font-bold text-gray-900 mb-6">Comments ({{ article.comments.count }})</h3>
-
-            {% if article.comments.all %}
-            <div class="space-y-6">
-                {% for comment in article.comments.all %}
-                <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <h4 class="font-semibold text-gray-900">{{ comment.user_name }}</h4>
-                            <p class="text-sm text-gray-500">{{ comment.created_at|date:"F j, Y" }}</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700">{{ comment.content }}</p>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="text-center py-8 bg-gray-50 rounded-lg">
-                <i class="fas fa-comments text-4xl text-gray-300 mb-4"></i>
-                <p class="text-gray-600">No comments yet. Be the first to share your thoughts!</p>
+    <article class="py-12 px-4">
+        <div class="max-w-4xl mx-auto">
+            <!-- Showcase Image -->
+            {% if article.showcase_image %}
+            <div class="mb-12 rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                    src="{{ article.showcase_image.link }}" 
+                    alt="{{ article.title }}"
+                    class="w-full h-auto object-cover"
+                >
             </div>
             {% endif %}
 
-            <!-- Add Comment Form -->
-            <div class="mt-8 bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h4 class="text-xl font-bold text-gray-900 mb-4">Add a Comment</h4>
-                <form method="post" action="{% url 'public_article' slug=article.slug %}">
+            <!-- Article Body -->
+            <div class="prose prose-lg max-w-none bg-white rounded-2xl p-8 lg:p-12 shadow-lg mb-12">
+                {{ processed_content|safe }}
+            </div>
+
+            <!-- Like & Share Section -->
+            <div class="bg-white rounded-2xl p-8 shadow-lg mb-12">
+                <div class="flex flex-wrap items-center justify-between gap-6">
+                    <!-- Like Button -->
+                    <form method="post" action="{% url 'blog:like_article' article.id %}" class="flex items-center">
+                        {% csrf_token %}
+                        <button type="submit" class="btn {% if user_has_liked %}btn-primary{% else %}btn-ghost{% endif %} group">
+                            <i class="fas fa-heart mr-2 {% if not user_has_liked %}group-hover:text-red-500{% endif %}"></i>
+                            <span class="font-semibold">{{ like_count }}</span>
+                            <span class="ml-1">{% if like_count == 1 %}Like{% else %}Likes{% endif %}</span>
+                        </button>
+                    </form>
+
+                    <!-- Share Buttons -->
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-medium text-gray-600 mr-2">Share:</span>
+                        <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ article.title }}" 
+                           target="_blank"
+                           class="btn btn-ghost text-blue-400 hover:bg-blue-50">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" 
+                           target="_blank"
+                           class="btn btn-ghost text-blue-600 hover:bg-blue-50">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ article.title }}" 
+                           target="_blank"
+                           class="btn btn-ghost text-blue-700 hover:bg-blue-50">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <button onclick="copyToClipboard()" class="btn btn-ghost text-gray-600 hover:bg-gray-100">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="bg-white rounded-2xl p-8 shadow-lg mb-12">
+                <h3 class="text-2xl font-heading font-bold text-gray-900 mb-6">
+                    <i class="fas fa-comments mr-2 text-primary"></i>
+                    Comments ({{ comments.count }})
+                </h3>
+
+                <!-- Comment Form -->
+                <form method="post" class="mb-8 p-6 bg-gray-50 rounded-xl">
                     {% csrf_token %}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <h4 class="font-semibold text-gray-900 mb-4">Leave a Comment</h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                            <input type="text" name="name" id="name" required
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ambassador-purple focus:border-ambassador-purple">
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                            <input type="text" name="name" id="name" required class="input">
                         </div>
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                            <input type="email" name="email" id="email" required
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ambassador-purple focus:border-ambassador-purple">
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" name="email" id="email" required class="input">
                         </div>
                     </div>
+                    
                     <div class="mb-4">
-                        <label for="content" class="block text-sm font-medium text-gray-700 mb-1">Comment</label>
-                        <textarea name="content" id="content" rows="4" required
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-ambassador-purple focus:border-ambassador-purple"></textarea>
+                        <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Comment</label>
+                        <textarea name="content" id="content" rows="4" required class="input"></textarea>
                     </div>
-                    <button type="submit" class="bg-ambassador-purple hover:bg-ambassador-deep-purple text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane mr-2"></i>
                         Post Comment
                     </button>
                 </form>
-            </div>
-        </div>
 
-        <!-- Newsletter Signup -->
-        <div id="newsletter" class="py-16 px-8 w-full bg-gradient-to-r from-ambassador-orange to-ambassador-deep-orange text-white mb-8 rounded-xl">
-            <div class="text-center">
-                <h3 class="text-3xl md:text-4xl font-bold mb-4">Stay Updated!</h3>
-                <p class="text-xl mb-6 opacity-90">Subscribe to our newsletter for the latest articles and school updates.</p>
-                <form class="mx-auto" method="post" action="{% url 'subscribe_newsletter' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ request.build_absolute_uri }}">
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" name="name" placeholder="Enter your name" required class="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-ambassador-purple">
-                        <input type="email" name="email" placeholder="Enter your email" required class="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-ambassador-purple">
-                        <button type="submit" class="bg-violet-700 hover:bg-violet-900 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                            Subscribe
-                        </button>
+                <!-- Comments List -->
+                {% if comments %}
+                <div class="space-y-6">
+                    {% for comment in comments %}
+                    <div class="flex gap-4 p-4 bg-gray-50 rounded-xl">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-bold">
+                                {{ comment.user_name|first|upper }}
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h5 class="font-semibold text-gray-900">{{ comment.user_name }}</h5>
+                                <span class="text-sm text-gray-500">{{ comment.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <p class="text-gray-700">{{ comment.content }}</p>
+                        </div>
                     </div>
-                    <p class="text-sm opacity-75 mt-4">Join our community of readers. No spam, unsubscribe anytime.</p>
-                </form>
-            </div>
-        </div>
-
-        <!-- Share Buttons -->
-        <div class="text-center mb-4">
-            <h4 class="text-lg font-semibold text-gray-900 mb-4">Share this article</h4>
-            <div class="flex justify-center space-x-4">
-                <button onclick="shareOnFacebook()" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full transition-colors" title="Share on Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </button>
-                <button onclick="shareOnTwitter()" class="bg-blue-400 hover:bg-blue-500 text-white p-3 rounded-full transition-colors" title="Share on Twitter">
-                    <i class="fab fa-twitter"></i>
-                </button>
-                <button onclick="shareOnWhatsApp()" class="bg-green-600 hover:bg-green-700 text-white p-3 rounded-full transition-colors" title="Share on WhatsApp">
-                    <i class="fab fa-whatsapp"></i>
-                </button>
-                <button onclick="copyLink()" class="bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-full transition-colors" title="Copy link">
-                    <i class="fas fa-link"></i>
-                </button>
-            </div>
-        </div>
-
-<!--        &lt;!&ndash; Author Bio &ndash;&gt;-->
-<!--        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-8">-->
-<!--            <div class="flex items-start space-x-4">-->
-<!--                <div class="w-16 h-16 bg-gradient-to-r from-ambassador-lime to-green-500 rounded-full flex items-center justify-center flex-shrink-0">-->
-<!--                    <i class="fas fa-user text-white text-xl"></i>-->
-<!--                </div>-->
-<!--                <div class="flex-1">-->
-<!--                    <h4 class="text-xl font-bold text-gray-900 mb-2">{{ article.author.name }}</h4>-->
-<!--                    <p class="text-gray-600 mb-3">-->
-<!--                        Teacher from the Ambassador's School. Dedicated to sharing insights and updates about our school.-->
-<!--                    </p>-->
-<!--                    <div class="flex space-x-3">-->
-<!--                        <a href="#" class="text-ambassador-blue hover:text-green-700 transition-colors" title="LinkedIn">-->
-<!--                            <i class="fab fa-whatsapp"></i>-->
-<!--                        </a>-->
-<!--                        <a href="mailto:{{ article.author.email }}" class="text-ambassador-blue hover:text-blue-700 transition-colors" title="Email">-->
-<!--                            <i class="fas fa-envelope"></i>-->
-<!--                        </a>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-
-        <!-- Related Articles -->
-        {% if related_articles %}
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <h4 class="text-xl font-bold text-gray-900 mb-4">More from {{ article.author.name }}</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {% for related in related_articles %}
-                <a href="{% url 'public_article' slug=related.slug %}" class="block p-4 border border-gray-200 rounded-lg hover:border-ambassador-blue hover:shadow-md transition-all">
-                    {% if related.showcase_image and related.showcase_image.link %}
-                    <div class="h-40 bg-gray-200 overflow-hidden rounded-lg mb-3">
-                        <img src="{{ related.showcase_image.link }}" alt="{{ related.showcase_image.wording|default:related.title }}" class="w-full h-full object-cover">
-                    </div>
-                    {% endif %}
-                    <h5 class="font-semibold text-gray-900 mb-2 line-clamp-2">{{ related.title }}</h5>
-                    {% if related.summary %}
-                    <p class="text-sm text-gray-600 mb-2 line-clamp-3">{{ related.summary|truncatechars:100 }}</p>
-                    {% endif %}
-                    <p class="text-xs text-gray-500">{{ related.published_at|date:"M d, Y" }}</p>
-                </a>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-    </footer>
-</article>
-
-<!-- Footer -->
-<footer class="bg-gray-900 text-white mt-8">
-    <div class="max-w-screen mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-3 md:grid-cols-3 gap-8">
-            <!-- About -->
-            <div>
-                <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-20 h-20 bg-transparent rounded-full flex items-center justify-center">
-                        <img src="{% static 'images/ambassadors_logo.png' %}" alt="logo" srcset="">
-                    </div>
-                    <h3 class="text-2xl font-bold">Ambassador's Blog</h3>
+                    {% endfor %}
                 </div>
-                <p class="text-gray-400 mb-4">Sharing knowledge, insights, and updates from our educational community.</p>
-                <p class="text-sm text-gray-500 italic">"Love - Work - Success"</p>
+                {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-comment-slash text-4xl mb-3 text-gray-300"></i>
+                    <p>No comments yet. Be the first to comment!</p>
+                </div>
+                {% endif %}
             </div>
 
-            <!-- Contact -->
-            <div>
-                <h4 class="text-lg font-semibold mb-4">Contact Us</h4>
-                <div class="space-y-2 text-gray-400">
-                    <p><i class="fas fa-envelope mr-2"></i> ambassadeurs@yahoo.edu</p>
-                    <p><i class="fas fa-phone mr-2"></i> (+237) 699 090 190</p>
-                    <p><i class="fas fa-phone mr-2"></i> (+237) 677 198 810</p>
-                    <p><i class="fas fa-phone mr-2"></i> (+237) 695 955 402</p>
-                    <p><i class="fas fa-phone mr-2"></i> (+237) 691 377 878</p>
-                    <p><i class="fas fa-map-marker-alt mr-2"></i> Bertoua, Cameroon</p>
+            <!-- Related Articles -->
+            {% if related_articles %}
+            <div class="bg-white rounded-2xl p-8 shadow-lg">
+                <h3 class="text-2xl font-heading font-bold text-gray-900 mb-6">
+                    <i class="fas fa-newspaper mr-2 text-primary"></i>
+                    More from {{ article.author.name }}
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {% for related in related_articles %}
+                    <article class="group">
+                        {% if related.showcase_image %}
+                        <div class="aspect-video overflow-hidden bg-gray-200 rounded-lg mb-3">
+                            <img 
+                                src="{{ related.showcase_image.link }}" 
+                                alt="{{ related.title }}"
+                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            >
+                        </div>
+                        {% endif %}
+                        <h4 class="font-heading font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                            {{ related.title }}
+                        </h4>
+                        <a href="{% url 'blog:public_article' related.slug %}" class="text-sm text-primary hover:text-primary-dark">
+                            Read more <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </article>
+                    {% endfor %}
                 </div>
             </div>
-
-            <!-- Social -->
-            <div>
-                <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors" title="Facebook">
-                        <i class="fab fa-facebook text-2xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors" title="WhatsApp">
-                        <i class="fab fa-whatsapp text-2xl"></i>
-                    </a>
-                    <a href="#" class="text-gray-400 hover:text-white transition-colors" title="Instagram">
-                        <i class="fab fa-instagram text-2xl"></i>
-                    </a>
-                </div>
-            </div>
+            {% endif %}
         </div>
+    </article>
 
-        <div class="border-t border-gray-800 mt-8 pt-6 text-center">
-            <p class="text-gray-400">
-                © {% now "Y" %} Ambassador's Blog. All rights reserved. | developed by ID-Group
-            </p>
+    <!-- Back to Blog -->
+    <div class="py-8 px-4 bg-white border-t border-gray-200">
+        <div class="max-w-4xl mx-auto text-center">
+            <a href="{% url 'blog:blog_home' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Back to Blog
+            </a>
         </div>
     </div>
-</footer>
-
-<!-- Success message for newsletter signup -->
-<div id="newsletter-success" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg hidden z-50">
-    <i class="fas fa-check-circle mr-2"></i>
-    Successfully subscribed to newsletter!
 </div>
 
 <script>
-    function shareOnFacebook() {
-        const url = encodeURIComponent(window.location.href);
-        const title = encodeURIComponent('{{ article.title|escapejs }}');
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
-    }
-
-    function shareOnTwitter() {
-        const url = encodeURIComponent(window.location.href);
-        const title = encodeURIComponent('{{ article.title|escapejs }}');
-        window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`, '_blank', 'width=600,height=400');
-    }
-
-    function shareOnWhatsApp() {
-        const url = encodeURIComponent(window.location.href);
-        const title = encodeURIComponent('{{ article.title|escapejs }}');
-        window.open(`https://wa.me/?text=${title} ${url}`, '_blank');
-    }
-
-    function copyLink() {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            // Show temporary success message
-            const originalText = event.target.innerHTML;
-            event.target.innerHTML = '<i class="fas fa-check"></i>';
-            event.target.classList.add('bg-green-600');
-
-            setTimeout(() => {
-                event.target.innerHTML = '<i class="fas fa-link"></i>';
-                event.target.classList.remove('bg-green-600');
-            }, 2000);
-        }).catch(() => {
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = window.location.href;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            alert('Link copied to clipboard!');
-        });
-    }
-
-    // Handle newsletter form submission
-    document.addEventListener('DOMContentLoaded', function() {
-        const newsletterForm = document.querySelector('#newsletter form');
-        if (newsletterForm) {
-            newsletterForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const formData = new FormData(this);
-
-                // Here you would typically send the data to your backend
-                // For now, we'll just show a success message
-                const successMsg = document.getElementById('newsletter-success');
-                successMsg.classList.remove('hidden');
-
-                // Clear the form
-                this.reset();
-
-                // Hide success message after 5 seconds
-                setTimeout(() => {
-                    successMsg.classList.add('hidden');
-                }, 5000);
-            });
-        }
+function copyToClipboard() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        alert('Link copied to clipboard!');
     });
-
-    // Add smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
+}
 </script>
 
-<!-- JSON-LD Structured Data for SEO -->
-<script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        "headline": "{{ article.title|escapejs }}",
-        "description": "{{ article.summary|default:article.title|truncatechars:160|escapejs }}",
-        "author": {
-            "@type": "Person",
-            "name": "{{ article.author.name|escapejs }}"
-        },
-        "publisher": {
-            "@type": "Organization",
-            "name": "Ambassador's Blog",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/ambassadors_logo.png' %}"
-            }
-        },
-        "datePublished": "{{ article.published_at|date:'c' }}",
-        "dateModified": "{{ article.updated_at|date:'c' }}",
-        "mainEntityOfPage": {
-            "@type": "WebPage",
-            "@id": "{{ request.build_absolute_uri }}"
-        }
-    }
-</script>
-</body>
-</html>
+<style>
+/* Prose styling for article content */
+.prose {
+    color: #374151;
+    line-height: 1.8;
+}
+
+.prose h2 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-top: 2.5em;
+    margin-bottom: 1em;
+    color: #111827;
+}
+
+.prose h3 {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 600;
+    font-size: 1.625rem;
+    margin-top: 2em;
+    margin-bottom: 0.75em;
+    color: #111827;
+}
+
+.prose p {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    font-size: 1.125rem;
+}
+
+.prose img {
+    margin-top: 2.5em;
+    margin-bottom: 2.5em;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.prose strong {
+    color: #111827;
+    font-weight: 600;
+}
+
+.prose a {
+    color: #9333ea;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.prose a:hover {
+    color: #7c3aed;
+}
+
+.prose ul, .prose ol {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    padding-left: 1.75em;
+}
+
+.prose li {
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+}
+
+.prose blockquote {
+    font-style: italic;
+    border-left: 4px solid #9333ea;
+    padding-left: 1.5em;
+    margin: 2em 0;
+    color: #6b7280;
+    background: #f9fafb;
+    padding: 1.5em;
+    border-radius: 0.5rem;
+}
+
+.prose code {
+    background-color: #f3f4f6;
+    padding: 0.25em 0.5em;
+    border-radius: 0.375rem;
+    font-size: 0.9em;
+    font-family: 'Courier New', monospace;
+    color: #be185d;
+}
+
+.prose pre {
+    background-color: #1f2937;
+    color: #f3f4f6;
+    padding: 1.5em;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+    margin: 2em 0;
+}
+
+.prose pre code {
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

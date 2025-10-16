@@ -1,0 +1,876 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Home Page</title>
+    {% tailwind_css %}
+  </head>
+  <style>
+    body {
+      font-family: 'Radio Canada', sans-serif;
+      overflow-x: hidden;
+    }
+    a, h1, h2, span{
+      font-family: 'Viga', sans-serif;
+    }
+
+    .about-hero-bg {
+      background: no-repeat
+        url("{% static 'img/Teachers-group-photo.jpeg'%}");
+      background-size: cover;
+      background-position: center;
+      height: 60vh;
+    }
+
+    .scrolled {
+      background-color: #4d179a;
+      /* Fond sombre pour la navbar */
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: sticky;
+    }
+
+    .scrolled .text-white {
+      color: #fff;
+    }
+
+    .scrolled a {
+      color: #fff;
+    }
+
+    /* Masque la barre de défilement pour les navigateurs basés sur WebKit (Chrome, Safari, etc.) */
+    #activities-slider::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Masque la barre de défilement pour Internet Explorer, Edge, et Firefox */
+    #activities-slider,
+    #blog-slider {
+      -ms-overflow-style: none;
+      /* IE et Edge */
+      scrollbar-width: none;
+      /* Firefox */
+    }
+  </style>
+
+<body id="top" class="text-gray-900 border-box min-h-screen">
+    <header
+      id="navbar"
+      class="absolute top-0 left-0 right-0 z-20 transition-all duration-300 ease-in-out py-4 flex items-center px-6 lg:px-15 justify-between text-white w-full"
+    >
+      <!-- <div
+        class="container  py-4 flex items-center justify-between text-white w-full"
+      > -->
+      <div class="flex items-center">
+        <img
+          src="{%static 'img/logo-ambassadeurs.png'%}"
+          alt="logo-ambassadeurs"
+          class="max-w-1/6 sm:max-w-1/8 lg:max-w-1/10 xl:max-w-1/12 mr-2"
+        />
+        <a href="/" class="md:text-2xl font-bold tracking-wide text-xl"
+          >GSBL Les Ambassadeurs</a
+        >
+      </div>
+
+      <nav
+        class="flex items-center xl:justify-between text-sm font-semibold xl:flex-3/4 xl:w-full"
+      >
+        <ul class="hidden xl:flex items-center space-x-8 min-space">
+          <a
+            href="#"
+            class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg"
+            >Admissions</a
+          >
+          <a
+            href="{% url 'nursery:about' %}"
+            class="py-2 hover:text-orange-300 hover:underline transition-colors duration-300 text-lg"
+            >A propos</a
+          >
+
+          <a
+            href="{% url 'nursery:contact'%}"
+            class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg"
+            >Contacts</a
+          >
+          <a
+            href="{% url 'blog:blog_home' %}"
+            class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg"
+            >Notre Blog</a
+          >
+        </ul>
+        <button
+          id="menu-button"
+          class="flex items-center space-x-2 text-white hover:text-orange-400 focus:outline-none"
+        >
+          <span class="hidden md:block text-lg">Menu</span>
+          <svg
+            class="h-8 w-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"
+            ></path>
+          </svg>
+        </button>
+      </nav>
+      <!-- </div> -->
+    </header>
+    <div
+      id="fullscreen-nav"
+      class="fixed top-0 left-0 h-full w-full z-50 bg-white md:bg-gray-100 text-gray-900 overflow-y-auto hidden"
+    >
+      <div class="container mx-auto px-4 md:px-8 py-8 md:py-16 h-full">
+        <div class="flex justify-end">
+          <button
+            id="fullscreen-close-button"
+            class="text-gray-900 hover:text-orange-500 transition-colors duration-300 focus:outline-none"
+          >
+            <svg
+              class="h-8 w-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
+
+        <div
+          class="h-full mt-4 md:mt-8 flex flex-col md:flex-row md:space-x-12"
+        >
+          <div class="hidden md:block md:w-1/2">
+            <div class="grid grid-cols-1 gap-4 lg:gap-6">
+              <a
+                href="#"
+                class="group relative block overflow-hidden rounded-lg shadow-lg"
+              >
+                <img
+                  src="{% static 'img/nursery-students.jpeg' %}"
+                  alt="Preschool"
+                  class="w-full h-48 object-cover transform transition-transform duration-1000 group-hover:scale-110"
+                />
+                <div
+                  class="absolute inset-0 bg-lime-600/10 bg-opacity-70 flex items-end p-4"
+                >
+                  <h3 class="text-white text-xl font-bold">Garderie</h3>
+                </div>
+              </a>
+              <a
+                href="{% url 'nursery:maternelle'%}"
+                class="group relative block overflow-hidden rounded-lg shadow-lg"
+              >
+                <img
+                  src="{% static 'img/students-cosplay.jpeg' %}"
+                  alt="Junior School"
+                  class="w-full h-48 object-cover transform transition-transform duration-1000 object-top group-hover:scale-110"
+                />
+                <div
+                  class="absolute inset-0 bg-violet-700/10 bg-opacity-70 flex items-end p-4"
+                >
+                  <h3 class="text-white text-xl font-bold">Maternelle</h3>
+                </div>
+              </a>
+              <a
+                href="#"
+                class="group relative block overflow-hidden rounded-lg shadow-lg"
+              >
+                <img
+                  src="{% static 'img/majorettes-2.jpeg' %}"
+                  alt="Senior School"
+                  class="w-full h-48 object-cover transform transition-transform duration-1000 group-hover:scale-110"
+                />
+                <div
+                  class="absolute inset-0 bg-orange-500/10 flex items-end p-4"
+                >
+                  <h3 class="text-white text-xl font-bold">Primaire</h3>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div class="md:w-1/3 pt-8 md:pt-0">
+            <h4
+              class="text-2xl font-bold text-violet-800 mb-4 border-b md:pb-4 border-gray-300 pl-4"
+            >
+              Navigation Rapide
+            </h4>
+            <ul class="flex flex-col space-y-2 pl-4">
+              <li>
+                <a href="{% url 'nursery:home' %}" class="block py-2 text-lg hover:text-orange-500"
+                  >Accueil</a
+                >
+              </li>
+              <li>
+                <a href="#" class="block py-2 text-lg hover:text-orange-500"
+                  >Admissions</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'nursery:about' %}"
+                  class="block py-2 text-lg hover:text-orange-500"
+                  >A propos</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'nursery:contact'%}"
+                  class="block py-2 text-lg hover:text-orange-500"
+                  >Contact</a
+                >
+              </li>
+              <li>
+                <a href="{% url 'blog:blog_home' %}" class="block py-2 text-lg hover:text-orange-500"
+                  >Publications</a
+                >
+              </li>
+            </ul>
+            <ul
+              class="flex flex-col space-y-2 border-t border-gray-300 pt-4 mt-4 pl-4"
+            >
+              <li class="py-2 block text-lg text-violet-800 font-semibold">
+                Nos écoles
+              </li>
+              <li>
+                <a
+                  href="{% url 'daycare:home'%}"
+                  class="block py-2 text-lg hover:text-orange-500 font-medium"
+                  >Garderie</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{%url 'nursery:maternelle'%}"
+                  class="block py-2 text-lg hover:text-orange-500 font-medium"
+                  >Maternelle</a
+                >
+              </li>
+              <li>
+                <a
+                  href="{% url 'primaire:home_en' %}"
+                  class="block py-2 text-lg hover:text-orange-500 font-medium"
+                  >Primaire</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section
+      id="hero"
+      class="relative about-hero-bg flex justify-center items-center bg-violet-900 text-white pt-30 mb-30"
+    >
+      <div class="absolute inset-0 bg-violet-950/60"></div>
+      <div class="container mx-auto px-4 text-center z-10">
+        <h1 class="text-2xl md:text-5xl font-extrabold mb-4">
+          Decouvrez Qui Nous Sommes,
+          <span class="text-orange-400">Notre Mission et Nos Valeurs</span>
+        </h1>
+        <p class="text-lg mb-8">
+          Dédiés à l'excellence et au développement intégral de chaque élève.
+        </p>
+      </div>
+    </section>
+
+    <section class="py-16 bg-gray-100 dark:bg-gray-800 mb-30">
+      <div class="container mx-auto px-4 md:px-8">
+        <div class="max-w-4xl mx-auto text-center mb-12">
+          <h2
+            class="text-3xl md:text-4xl font-extrabold text-violet-800 dark:text-violet-300 mt-12"
+          >
+            Notre Mission et Nos Valeurs
+          </h2>
+
+          <p class="mt-4 text-lg text-gray-600 dark:text-gray-400">
+            Partant de notre devise
+            <span class="font-bold">Amour - Travail - Succès</span>, nous
+            croyons que le travail doit avoir comme soutien principal l'amour
+            pour aboutir au succès.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div
+            class="bg-white dark:bg-gray-700 rounded-lg p-8 shadow-md border-3 border-dashed border-violet-700"
+          >
+            <h3 class="text-2xl font-bold text-orange-500 mb-4">
+              Notre Vision
+            </h3>
+            <ul
+              class="list-disc list-inside space-y-3 text-gray-700 dark:text-gray-300"
+            >
+              <li>
+                Nous visons à être un pôle d'excellence académique et de
+                développement personnel, où chaque élève est préparé à devenir
+                un citoyen responsable et innovant.
+              </li>
+              <!-- <li>
+              Élever une génération d'Ambassadeurs bien formés, aptes à devenir des leaders compétents et à impacter
+              positivement la société.
+            </li> -->
+              <li>
+                Redonner ses lettres de noblesse à la profession d'enseignant en
+                offrant un cadre de travail de qualité, des formations continues
+                et des équipements modernes.
+              </li>
+            </ul>
+          </div>
+
+          <div
+            class="bg-white dark:bg-gray-700 rounded-lg p-8 shadow-md border-3 border-dashed border-violet-700"
+          >
+            <h3 class="text-2xl font-bold text-orange-500 mb-4">
+              Notre Raison d'Être
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300">
+              Face au déclin des standards éducatifs, nous nous engageons à
+              former une génération d'Ambassadeurs compétents et performants.
+              Notre approche associe rigueur académique et développement des
+              savoirs, savoir-être et savoir-faire, afin que nos élèves
+              deviennent de véritables acteurs de changement.
+            </p>
+            <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-md">
+              <p
+                class="font-semibold text-center text-violet-700 dark:text-violet-300"
+              >
+                Slogan de l'école :
+                <span class="text-orange-500"
+                  >AMBASSADEURS - TOUJOURS - VAINQUEURS</span
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="p-8 bg-white dark:bg-gray-700 rounded-lg shadow-lg mx-auto mt-12 border-3 border-dashed border-orange-600"
+        >
+          <h3
+            class="text-2xl font-bold text-orange-500 dark:text-violet-300 mb-8 text-center"
+          >
+            Nos Valeurs Fondamentales
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+            <div class="flex flex-col items-center p-4">
+              <svg
+                class="h-12 w-12 text-violet-600 mb-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <p class="font-bold text-lg text-violet-700 dark:text-violet-300">
+                Amour de l'autre
+              </p>
+              <p
+                class="text-sm text-gray-500 dark:text-gray-400 mt-2 text-justify"
+              >
+                L'amour pour nos élèves, le personnel et le métier d'enseignant
+                est au cœur de notre mission.
+              </p>
+            </div>
+
+            <div class="flex flex-col items-center p-4">
+              <svg
+                class="h-12 w-12 text-violet-600 mb-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <p class="font-bold text-lg text-violet-700 dark:text-violet-300">
+                Respect de l'autre
+              </p>
+              <p
+                class="text-sm text-gray-500 dark:text-gray-400 mt-2 text-justify"
+              >
+                Nous cultivons le respect mutuel entre tous les membres de notre
+                communauté.
+              </p>
+            </div>
+
+            <div class="flex flex-col items-center p-4">
+              <svg
+                class="h-12 w-12 text-violet-600 mb-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12l2 2 4-4m-6 3h.01M16 19a2 2 0 01-2 2H8a2 2 0 01-2-2V7a2 2 0 012-2h4l4 4v8.5a.5.5 0 01-.5.5z"
+                />
+              </svg>
+              <p class="font-bold text-lg text-violet-700 dark:text-violet-300">
+                Honnêteté
+              </p>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                L'intégrité et la transparence sont la base de notre travail au
+                quotidien.
+              </p>
+            </div>
+            <div class="flex flex-col items-center p-4">
+              <svg
+                class="h-12 w-12 text-violet-600 mb-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zm10 0a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2h-2zM5 13a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zm10 0a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2h-2z"
+                />
+              </svg>
+              <p class="font-bold text-lg text-violet-700 dark:text-violet-300">
+                Cadre convivial
+              </p>
+              <p
+                class="text-sm text-gray-500 dark:text-gray-400 mt-2 text-justify"
+              >
+                Nous offrons un environnement d'apprentissage chaleureux et
+                accueillant.
+              </p>
+            </div>
+
+            <div class="flex flex-col items-center p-4">
+              <svg
+                class="h-12 w-12 text-violet-600 mb-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M10 2a8 8 0 100 16 8 8 0 000-16zM10 6a.75.75 0 01.75.75v5.5a.75.75 0 01-1.5 0V6.75A.75.75 0 0110 6z"
+                />
+              </svg>
+              <p class="font-bold text-lg text-violet-700 dark:text-violet-300">
+                Excellence
+              </p>
+              <p
+                class="text-sm text-gray-500 dark:text-gray-400 mt-2 text-justify"
+              >
+                Notre engagement est de former des enfants d'exception et
+                d'exceller dans toutes nos tâches.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 bg-violet-200 dark:bg-gray-800 mb-30">
+      <div class="container mx-auto px-4 md:px-8 mt-12 mb-15">
+        <h2
+          class="text-3xl md:text-4xl font-extrabold text-violet-800 dark:text-violet-300 text-center mb-12"
+        >
+          Notre Équipe de Direction
+        </h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div
+            class="bg-gray-100 dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden border-3 border-fuchsia-600 border-double"
+          >
+            <img
+              class="w-full h-80 object-cover object-top p-3 rounded-3xl"
+              src="{% static 'img/Fondatrice.jpeg' %}"
+              alt="Photo de la Fondatrice"
+            />
+            <div class="p-6 text-center">
+              <h4
+                class="font-semibold text-xl text-gray-800 dark:text-white mb-1"
+              >
+                Mme Minkam Minkam Arsène NOFOHO
+              </h4>
+              <p class="text-gray-600 dark:text-gray-300">Fondatrice</p>
+            </div>
+          </div>
+
+          <div
+            class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden border-3 border-yellow-500 border-double"
+          >
+            <img
+              class="w-full h-80 object-cover object-top p-3 rounded-3xl"
+              src="{% static 'img/directrice.jpeg' %}"
+              alt="Photo de la Directrice"
+            />
+            <div class="p-6 text-center">
+              <h4
+                class="font-semibold text-xl text-gray-800 dark:text-white mb-1"
+              >
+                Mme Nguepi Kake Rovani
+              </h4>
+              <p class="text-gray-600 dark:text-gray-300">Directrice</p>
+            </div>
+          </div>
+
+          <div
+            class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden"
+          >
+            <img
+              class="w-full h-80 object-cover object-top p-3 rounded-3xl"
+              src="{% static 'img/directrice-adjointe.jpeg' %}"
+              alt="Photo de la Directrice Adjointe"
+            />
+            <div class="p-6 text-center">
+              <h4
+                class="font-semibold text-xl text-gray-800 dark:text-white mb-1"
+              >
+                Mme Tangwi Lucy ATUH epse Gomna
+              </h4>
+              <p class="text-gray-600 dark:text-gray-300">
+                Directrice Adjointe
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 bg-orange-100 dark:bg-gray-900">
+      <div class="container mx-auto px-4 md:px-8 my-12">
+        <h2
+          class="text-3xl md:text-4xl font-extrabold text-violet-800 dark:text-violet-300 text-center mb-12"
+        >
+          Notre Campus en Images
+        </h2>
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1 auto-rows-fr"
+        >
+          <div
+            class="md:col-span-2 rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/school-court.jpeg'%}"
+              alt="Cour de récréation"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/empty-class.jpeg'%}"
+              alt="Salle de classe lumineuse"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/majorettes-1.jpeg'%}"
+              alt="Les majorettes"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/science-projects.jpeg'%}"
+              alt="Projet scientifique"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/students-smiling.jpeg'%}"
+              alt="Students-smiling"
+              class="w-full h-80 object-cover object-top"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/nursery-class.jpeg'%}"
+              alt="Salle de classe de maternelle"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+
+          <div
+            class="md:col-span-2 rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/School-bus.jpeg'%}"
+              alt="Le bus scolaire garé devant l'école"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/beds.jpeg'%}"
+              alt="couchettes des enfants"
+              class="w-full h-80 object-cover object-bottom"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/beds.jpeg'%}"
+              alt="Les majorettes"
+              class="w-full h-80 object-cover object-top"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/school-toilets.jpeg'%}"
+              alt="Students-smiling"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+
+          <div
+            class="md:col-span-2 rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/music-class.jpeg'%}"
+              alt="Cours de musique"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+
+          <div
+            class="rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-[1.02]"
+          >
+            <img
+              src="{%static 'img/students-in-class.jpeg'%}"
+              alt="Eleves en classe"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 bg-white dark:bg-gray-800 my-12">
+      <div class="container mx-auto px-4 md:px-8">
+        <h2
+          class="text-3xl md:text-4xl font-extrabold text-violet-800 dark:text-violet-300 text-center mb-12"
+        >
+          Ce que les parents disent de nous
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div
+            class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-6 flex flex-col items-center text-center"
+          >
+            <p class="text-gray-700 dark:text-gray-300 text-lg italic mb-4">
+              "L'accompagnement individualisé et le bilinguisme intégral ont
+              fait une énorme différence pour mon fils. Nous sommes ravis des
+              progrès qu'il a réalisés au GSBL Les Ambassadeurs."
+            </p>
+          </div>
+
+          <div
+            class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-6 flex flex-col items-center text-center"
+          >
+            <p class="text-gray-700 dark:text-gray-300 text-lg italic mb-4">
+              "Les activités extrascolaires et la formation musicale sont un
+              vrai plus. Mon fils a découvert une passion pour le piano et cela
+              a boosté sa confiance en lui. Un grand merci à l'équipe
+              pédagogique."
+            </p>
+          </div>
+          <div
+            class="bg-gray-50 dark:bg-gray-700 rounded-lg shadow-lg p-6 flex flex-col items-center text-center"
+          >
+            <p class="text-gray-700 dark:text-gray-300 text-lg italic mb-4">
+              "Bonjour chers parents. Je suis de la première promotion de la
+              grande section 2018-1019 au GSBLA. Je voudrais dire merci à mes
+              enseignants qui m'ont accompagnés pendant tout mon parcours au
+              GSBLA de 2018 à 2025. MERCI BEAUCOUP À Mme LA FONDATRICE, MERCI À
+              Mme LA DIRECTRICE, MERCI AU GSBLA.Un seul mot, gardez mes cadets.
+              <br />
+              <span class="font-bold">TAKOS MAYA Daniel</span>, Ancien apprenant
+              du GBSLA"
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-20 bg-violet-100 text-gray-900 dark:bg-violet-900">
+      <div class="container mx-auto px-4 md:px-8 text-center">
+        <h2 class="text-4xl md:text-5xl font-extrabold mb-4">
+          Prêts à rejoindre la famille ?
+        </h2>
+        <p class="text-lg md:text-xl max-w-3xl mx-auto mb-8">
+          Il n'y a pas de meilleur moment pour offrir à votre enfant l'éducation
+          bilingue d'excellence qu'il mérite. Rejoignez-nous et faites partie
+          d'une communauté dédiée à la réussite et à l'épanouissement.
+        </p>
+        <div
+          class="flex flex-col md:flex-row justify-center items-center gap-4"
+        >
+          <a
+            href="{% url 'nursery:contact' %}"
+            class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full shadow-lg transition-colors duration-300 transform hover:scale-105"
+          >
+            Contactez-nous
+          </a>
+          <a
+            href="{% url 'nursery:about' %}"
+            class="text-gray-800 hover:text-violet-500 font-semibold py-4 px-8"
+          >
+            En savoir plus sur nos programmes
+            <span class="text-lg">&rArr; </span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+{% include 'components/_unified_footer.html' with theme='nursery' %}
+      <div class="container mx-auto px-8 py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+
+          <div>
+            <h4 class="font-bold text-white mb-4 text-xl">Liens rapides</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="{% url 'nursery:home' %}" class="hover:text-orange-400 transition-colors duration-300">Accueil</a>
+              </li>
+              <li>
+                <a href="{% url 'nursery:about' %}" class="hover:text-orange-400 transition-colors duration-300">À propos de nous</a>
+              </li>
+              <li>
+                <a href="{% url 'daycare:home'%}" class="hover:text-orange-400 transition-colors duration-300">Garderie</a>
+              </li>
+              <li>
+                <a href="{% url 'nursery:maternelle'%}" class="hover:text-orange-400 transition-colors duration-300">Maternelle</a>
+              </li>
+              <li>
+                <a href="{% url 'primaire:home_en' %}" class="hover:text-orange-400 transition-colors duration-300">Primaire</a>
+              </li>
+              <li>
+                <a href="{% url 'blog:blog_home' %}" class="hover:text-orange-400 transition-colors duration-300">Publications</a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-bold text-white mb-4 text-xl">Nous contacter</h4>
+            <ul class="space-y-4">
+              <li class="flex items-start">
+                <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <div>
+                  <span class="font-semibold">Email:</span><br>
+                  <a href="mailto:contact@ambassadeurs.edu" class="hover:text-orange-400">contact@ambassadeurs.edu</a>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.158l-2.022 1.011a8.17 8.17 0 001.523 1.523l1.011-2.022a1 1 0 011.158-.502l4.493 1.498a1 1 0 01.684.948V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <div>
+                  <span class="font-semibold">Téléphone:</span><br>
+                  <a href="tel:+237699090190">+237 699 090 190</a><br>
+                  <a href="tel:+237677198810">+237 677 198 810</a><br>
+                  <a href="tel:+237695955402">+237 695 955 402</a><br>
+                  <a href="tel:+237691377878">+237 691 377 878</a>
+
+                </div>
+              </li>
+              <li class="flex items-start">
+                <svg class="h-6 w-6 text-orange-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <div>
+                  <span class="font-semibold">Adresse:</span><br>
+                  Quartier Tigaza, Bertoua, Cameroun
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <div class=" border-t border-gray-200 pt-8 md:pt-0 md:border-0 ">
+            <h4 class="font-bold text-white mb-4 text-xl">Newsletter</h4>
+            <p class="text-gray-400 text-sm mb-4">
+              Restez informés des dernières actualités en vous abonnant à notre newsletter.
+            </p>
+            <form action="#" method="POST" class="flex flex-col space-y-2">
+              <input type="text" name="name" placeholder="Votre nom" class="py-2 px-4 rounded-md text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 border-2 focus:border-0 border-orange-500">
+              <input type="email" name="email" placeholder="Votre email" class="py-2 px-4 rounded-md text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500 border-2 focus:border-0 border-orange-500">
+
+              <button type="submit" class="bg-orange-500 text-white font-bold py-2 px-4 rounded-md hover:bg-orange-600 transition-colors duration-300">
+                S'abonner
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-violet-950 dark:bg-gray-950 py-4 px-8 text-center text-gray-400 text-sm">
+        <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between">
+          <p class="mb-4 lg:mb-0">
+            © 2025 Groupe Scolaire Bilingue Les Ambassadeurs. Tous droits
+            réservés.
+          </p>
+          <div class="text-center lg:text-right">
+            <p>Conçu avec <span class="text-red-500">❤</span> par ID-Group</p>
+          </div>
+        </div>
+      </div>
+    <a
+      id="toTopButton"
+      href="#top"
+      class="flex items-center text-gray-100 hover:bg-orange-600/85 bg-violet-700/80 fixed bottom-10 right-6 p-2 font-bold rounded-full shadow-lg transition-opacity duration-300 invisible pointer-events-none z-50"
+    >
+      <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+        <path
+          fill-rule="evenodd"
+          d="M14.707 12.707a1 1 0 01-1.414-1.414L10 7.586 6.707 10.879a1 1 0 11-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+          clip-rule="evenodd"
+        ></path>
+      </svg>
+    </a>
+
+    <script src="{% static 'js/app.js' %}"></script>
+</html>

@@ -1,0 +1,22 @@
+[project]
+name = "daycare"
+version = "0.1.0"
+description = "Ambassadors Django + Tailwind project"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "Proprietary" }
+authors = [{ name = "Ambassadors" }]
+dependencies = [
+  "Django==4.2.*",
+  "django-tailwind",
+  "django-browser-reload",
+  "psycopg2-binary",
+]
+
+[tool.uv]
+# You can add dev-only dependencies here, e.g. linters or test frameworks
+# dev-dependencies = ["pytest", "ruff"]
+
+[build-system]
+requires = ["hatchling>=1.25.0"]
+build-backend = "hatchling.build"

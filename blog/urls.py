@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 
+app_name = 'blog'
+
 urlpatterns = [
     # Admin authentication
     path('login/', views.LoginView.as_view(), name='admin_login'),
@@ -25,6 +27,18 @@ urlpatterns = [
 
     # Admin creation (restricted)
     path('create-admin/', views.CreateAdminView.as_view(), name='create_admin_user'),
+
+    # Category management (admin only)
+    path('categories/', views.manage_categories, name='manage_categories'),
+    path('categories/create/', views.create_category, name='create_category'),
+    path('categories/<int:category_id>/edit/', views.edit_category, name='edit_category'),
+    path('categories/<int:category_id>/delete/', views.delete_category, name='delete_category'),
+
+    # Comment management
+    path('comments/', views.manage_comments, name='manage_comments'),
+    path('comments/<int:comment_id>/approve/', views.approve_comment, name='approve_comment'),
+    path('comments/<int:comment_id>/reject/', views.reject_comment, name='reject_comment'),
+    path('comments/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
 
     # AJAX endpoints
     path('search/', views.search_articles_ajax, name='search_articles_ajax'),
