@@ -2434,6 +2434,21 @@
     }
   }
   @media (hover: hover) {
+    .hover\:border-lime-700:hover {
+      border-color: var(--color-lime-700);
+    }
+  }
+  @media (hover: hover) {
+    .hover\:border-orange-600:hover {
+      border-color: var(--color-orange-600);
+    }
+  }
+  @media (hover: hover) {
+    .hover\:border-violet-800:hover {
+      border-color: var(--color-violet-800);
+    }
+  }
+  @media (hover: hover) {
     .hover\:bg-blue-50:hover {
       background-color: var(--color-blue-50);
     }
