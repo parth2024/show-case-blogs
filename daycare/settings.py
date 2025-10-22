@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
-
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,13 +21,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--1i70o182&spb*6+^2dj1l*6+*ijfqm$%!%61yc8&g&32$ujbk'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-please-change-me')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['192.168.124.5','localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    '192.168.124.5',
+    'localhost', 
+    '127.0.0.1', 
+    'gsblesambassadeurs.onrender.com',
+    'gsblesambassadeurs.com',
+    'www.gsblesambassadeurs.com'
+]
 
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Application definition
 
@@ -99,16 +110,36 @@ WSGI_APPLICATION = 'daycare.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# Add these at the top of your settings.py
+import os
+from dotenv import load_dotenv
+from urllib.parse import urlparse, parse_qsl
+
+load_dotenv()
+
+# Replace the DATABASES section of your settings.py with this
+tmpPostgres = urlparse(os.getenv("DATABASE_URL"))
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'blogdb',
-        'USER': 'customizer',
-        'PASSWORD': '{Customizer#05}',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': tmpPostgres.path[1:],  # removes leading '/'
+        'USER': tmpPostgres.username,
+        'PASSWORD': tmpPostgres.password,
+        'HOST': tmpPostgres.hostname,
+        'PORT': tmpPostgres.port or '5432',
+        'OPTIONS': dict(parse_qsl(tmpPostgres.query)),
     }
 }
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'blogdb',
+    #     'USER': 'customizer',
+    #     'PASSWORD': '{Customizer#05}',
+    #     'HOST': 'localhost',
+    #     'PORT': '5432',
+    # }
 
 
 # Password validation
