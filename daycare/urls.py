@@ -22,12 +22,18 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('daycare_ambassadeurs.urls')),  # Include the URLs from the daycare_ambassadeurs app
-    path('blog/', include('blog.urls')),  # Include the URLs from the blog app
+    path('daycare/', include('daycare_ambassadeurs.urls')),
+    path('blog/', include('blog.urls')),
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
     path('__reload__/', include('django_browser_reload.urls')),
-    path('primaire/', include('primaire.urls')) # Include URLs from the primaire app.
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-# if settings.DEBUG:
-#     urlpatterns += [
-#         path('__reload__/', include('django_browser_reload.urls')),
-#     ]
+    path('', include('nursery.urls')),
+]
+
+# Optionally include 'primaire' if present
+try:
+    urlpatterns.append(path('primaire/', include('primaire.urls')))
+except Exception:
+    pass
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        isSidebarOpen: window.innerWidth >= 768,
+        isMobile: window.innerWidth < 768
+    }"
+      x-init="
+        $watch('darkMode', val => localStorage.setItem('darkMode', val));
+        window.addEventListener('resize', () => {
+            isMobile = window.innerWidth < 768;
+            if (!isMobile) {
+                isSidebarOpen = true;
+            } else {
+                isSidebarOpen = false;
+            }
+        });
+    "
+      :class="{ 'dark': darkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ article.title }} - Preview</title>
+    {% load static %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/alpinejs/3.13.3/cdn.min.js"></script>
+
+    <script>
+        // Tailwind CSS Configuration
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            'DEFAULT': '#8b5cf6', // violet-500
+                            '50': '#f5f3ff', '100': '#ede9fe', '200': '#ddd6fe', '300': '#c4b5fd', '400': '#a78bfa', '500': '#8b5cf6', '600': '#7c3aed', '700': '#6d28d9', '800': '#5b21b6', '900': '#4c1d95', '950': '#2e1065'
+                        },
+                        'secondary': {
+                            'DEFAULT': '#a3e635', // lime-400
+                            '50': '#f7fee7', '100': '#ecfccb', '200': '#d9f99d', '300': '#bef264', '400': '#a3e635', '500': '#84cc16', '600': '#65a30d', '700': '#4d7c0f', '800': '#3f6212', '900': '#365314', '950': '#1a2e05'
+                        },
+                        'dark-bg': '#111827',
+                        'dark-surface': '#1f2937',
+                        'dark-border': '#374151',
+                        'light-bg': '#f9fafb',
+                        'light-surface': '#ffffff',
+                        'light-border': '#e5e7eb',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* General styling for a smoother experience */
+        body {
+            font-family: 'Radio Canada', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        h1, h2, button {
+            font-family: 'Viga', sans-serif;
+        }
+        h3, h4, h5, h6 {
+            font-family: 'Radio Canada', sans-serif;
+        }
+        /* Transition classes for sidebar and main content */
+        .transition-all-300 {
+            transition: all 0.3s ease-in-out;
+        }
+        .transition-width-300 {
+            transition: width 0.3s ease-in-out;
+        }
+        .transition-margin-300 {
+            transition: margin-left 0.3s ease-in-out;
+        }
+        /* Custom scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: rgba(139, 92, 246, 0.5); /* primary color with opacity */
+            border-radius: 10px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(139, 92, 246, 0.8);
+        }
+
+        /* Article content styling */
+        .article-content {
+            line-height: 1.8;
+        }
+        .article-content h1, .article-content h2, .article-content h3 {
+            margin: 1.5em 0 0.75em 0;
+            font-weight: 600;
+        }
+        .article-content p {
+            margin-bottom: 1.25em;
+        }
+        .article-content ul, .article-content ol {
+            margin: 1.25em 0;
+            padding-left: 2em;
+        }
+        .article-content blockquote {
+            border-left: 4px solid #a3e635;
+            padding-left: 1.5em;
+            margin: 1.5em 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+
+        .article-content code {
+            background-color: #f3f4f6;
+            padding: 0.25em 0.5em;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+        }
+        .article-content pre {
+            background-color: #f3f4f6;
+            padding: 1em;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5em 0;
+        }
+        .dark .article-content code {
+            background-color: #374151;
+            color: #f9fafb;
+        }
+        .dark .article-content pre {
+            background-color: #1f2937;
+            color: #f9fafb;
+        }
+        .dark .article-content blockquote {
+            color: #9ca3af;
+        }
+        .enhanced-article-content img,
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1.5rem auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (min-width: 768px) {
+            .enhanced-article-content img,
+            .article-content img {
+                max-width: 80%;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light-bg dark:bg-dark-bg text-gray-800 dark:text-gray-200">
+<div class="flex min-h-screen relative">
+    <!-- Sidebar -->
+    <aside
+            class="bg-gradient-to-b from-primary-900 to-primary-950 text-white fixed inset-y-0 left-0 z-50 flex flex-col transition-width-300"
+            :class="{
+                'w-64': isSidebarOpen,
+                'w-20': !isSidebarOpen && !isMobile,
+                'w-0 overflow-hidden': !isSidebarOpen && isMobile
+            }">
+
+        <!-- Logo and Brand -->
+        <div class="flex items-center justify-center h-20 border-b border-primary-800" :class="{'px-6': isSidebarOpen}">
+            <img src="{% static 'images/ambassadors_logo.png' %}" alt="Ambassador's Logo" class="w-12 h-12 bg-white rounded-full p-1 transition-all-300" :class="{'mr-3': isSidebarOpen}">
+            <div class="overflow-hidden" :class="{'w-full': isSidebarOpen, 'w-0': !isSidebarOpen}">
+                <h1 class="text-lg font-bold whitespace-break text-center">Blog Administration</h1>
+            </div>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 mt-6 space-y-2 px-2">
+            <a href="{% url 'blog:admin_dashboard' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-tachometer-alt fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Dashboard</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 rounded-lg bg-primary-700 text-white border-l-4 border-secondary-DEFAULT">
+                <i class="fas fa-eye fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Article Preview</span>
+            </a>
+            <a href="#" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-globe fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Website Info</span>
+            </a>
+            <a href="{% url 'blog:admin_profile' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-user-circle fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Profile</span>
+            </a>
+            <a href="{% url 'blog:admin_archived' %}" class="flex items-center px-4 py-3 rounded-lg text-gray-300 hover:bg-primary-800 hover:text-white transition-colors">
+                <i class="fas fa-archive fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Archived</span>
+            </a>
+        </nav>
+
+        <!-- User Profile & Logout -->
+        <div class="px-2 pb-4">
+            <div class="flex items-center p-2 bg-primary-800/50 rounded-lg" :class="{'justify-start': isSidebarOpen, 'justify-center': !isSidebarOpen}">
+                <img class="h-10 w-10 rounded-full object-cover" src="https://placehold.co/100x100/a3e635/4c1d95?text={{ admin_name|slice:':1'|upper }}" alt="User avatar">
+                <div class="ml-3 overflow-hidden" :class="{'w-full': isSidebarOpen, 'w-0': !isSidebarOpen}">
+                    <p class="text-sm font-medium text-white whitespace-nowrap">{{ admin_name }}</p>
+                    <p class="text-xs text-gray-400 whitespace-nowrap">Administrator</p>
+                </div>
+            </div>
+            <a href="{% url 'blog:admin_logout' %}" class="flex items-center mt-2 px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">
+                <i class="fas fa-sign-out-alt fa-fw w-8 text-center text-lg"></i>
+                <span class="ml-3 whitespace-nowrap transition-all-300" :class="{'opacity-100': isSidebarOpen, 'opacity-0': !isSidebarOpen}">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Sidebar backdrop for mobile -->
+    <div x-show="isSidebarOpen && isMobile" @click="isSidebarOpen = false" class="fixed inset-0 bg-black/50 z-40" x-cloak></div>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col transition-margin-300" :class="{ 'md:ml-64': isSidebarOpen, 'md:ml-20': !isSidebarOpen }">
+        <!-- Header -->
+        <header class="bg-light-surface dark:bg-dark-surface shadow-sm sticky top-0 z-30">
+            <div class="px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <!-- Sidebar Toggle & Welcome Message -->
+                    <div class="flex items-center">
+                        <button @click="isSidebarOpen = !isSidebarOpen" class="text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-secondary focus:outline-none">
+                            <i class="fas fa-bars text-2xl"></i>
+                        </button>
+                        <div class="ml-4 hidden sm:block">
+                            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Article Preview</h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Review how this article will appear to readers</p>
+                        </div>
+                    </div>
+
+                    <!-- Header Actions -->
+                    <div class="flex items-center space-x-4">
+                        <div class="hidden md:flex items-center bg-gray-100 dark:bg-dark-border px-4 py-2 rounded-lg">
+                            <i class="fas fa-calendar-alt text-primary dark:text-secondary mr-2"></i>
+                            <span class="text-sm font-medium">{% now "F j, Y" %}</span>
+                        </div>
+
+                        <!-- Theme Toggle -->
+                        <button @click="darkMode = !darkMode" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-dark-border transition-colors">
+                            <i x-show="!darkMode" class="fas fa-moon"></i>
+                            <i x-show="darkMode" class="fas fa-sun text-yellow-400"></i>
+                            <span class="sr-only">Toggle theme</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Article Actions -->
+        <div class="bg-light-surface dark:bg-dark-surface p-4 border-b border-light-border dark:border-dark-border">
+            <div class="flex flex-wrap items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center space-x-2">
+                    <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full
+                        {% if article.status == 'published' %}bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300
+                        {% elif article.status == 'draft' %}bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300
+                        {% else %}bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300{% endif %}">
+                        <i class="fas {% if article.status == 'published' %}fa-check-circle{% elif article.status == 'draft' %}fa-file-alt{% else %}fa-archive{% endif %} mr-1"></i>
+                        {{ article.get_status_display }}
+                    </span>
+
+                    {% if public_url %}
+                    <div class="flex items-center space-x-2 text-sm text-green-600 dark:text-green-400">
+                        <i class="fas fa-globe"></i>
+                        <span>Live at:</span>
+                        <a href="{{ public_url }}" target="_blank" class="font-medium hover:underline truncate max-w-xs">{{ public_url }}</a>
+                        <button onclick="copyPublicUrl('{{ public_url }}')" class="p-1 hover:bg-green-100 dark:hover:bg-green-900/30 rounded" title="Copy public URL">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex flex-wrap justify-end gap-3 pt-4">
+                    {% if public_url %}
+                    <a href="{{ public_url }}" target="_blank" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow">
+                        <i class="fas fa-external-link-alt mr-2"></i>
+                        View Live
+                    </a>
+                    {% endif %}
+
+                    <a href="{% url 'blog:edit_article' article.id %}" class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Article
+                    </a>
+
+                    <a href="{% url 'blog:admin_dashboard' %}" class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors shadow">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Article Preview -->
+        <div class="flex-1 p-4 sm:p-6 lg:p-8">
+            <div class="max-w-4xl mx-auto bg-light-surface dark:bg-dark-surface rounded-xl shadow-lg overflow-hidden border border-light-border dark:border-dark-border">
+                <!-- Article Header -->
+                <header class="p-6 md:p-8 text-center border-b border-light-border dark:border-dark-border">
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                        {{ article.title }}
+                    </h1>
+
+                    {% if article.summary %}
+                    <p class="text-xl text-gray-600 dark:text-gray-300 mb-6 max-w-3xl mx-auto leading-relaxed">
+                        {{ article.summary }}
+                    </p>
+                    {% endif %}
+
+                    <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gradient-to-r from-secondary-400 to-secondary-600 rounded-full flex items-center justify-center mr-3">
+                                <i class="fas fa-user text-white text-xs"></i>
+                            </div>
+                            <span>By <strong>{{ article.author.name }}</strong></span>
+                        </div>
+
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar-alt text-primary dark:text-secondary mr-2"></i>
+                            <span>{% if article.published_at %}{{ article.published_at|date:"F j, Y" }}{% else %}{{ article.created_at|date:"F j, Y" }}{% endif %}</span>
+                        </div>
+
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-primary dark:text-secondary mr-2"></i>
+                            <span>{{ reading_time }} min read</span>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Article Content -->
+                <div class="p-6 md:p-8">
+                    <div class="enhanced-article-content article-content" id="article-content">
+                        {{ article.content|safe }}
+                    </div>
+                </div>
+
+                <!-- Article Footer -->
+                <footer class="p-6 md:p-8 border-t border-light-border dark:border-dark-border bg-gray-50 dark:bg-dark-border/20">
+                    <div class="text-center">
+                        <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Article Information</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-300">
+                            <div class="bg-gray-100 dark:bg-dark-surface p-3 rounded-lg">
+                                <strong>Created:</strong><br>
+                                {{ article.created_at|date:"F j, Y \a\t g:i A" }}
+                            </div>
+                            <div class="bg-gray-100 dark:bg-dark-surface p-3 rounded-lg">
+                                <strong>Last Updated:</strong><br>
+                                {{ article.updated_at|date:"F j, Y \a\t g:i A" }}
+                            </div>
+                            <div class="bg-gray-100 dark:bg-dark-surface p-3 rounded-lg">
+                                <strong>Status:</strong><br>
+                                {{ article.get_status_display }}
+                                {% if article.published_at %}<br><small>(Published: {{ article.published_at|date:"M j, Y" }})</small>{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-light-surface dark:bg-dark-surface border-t border-light-border dark:border-dark-border mt-auto">
+            <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+                <p class="text-sm text-gray-500 dark:text-gray-400">&copy; {% now "Y" %} Ambassador's Blog. All Rights Reserved. | developed by ID-Group</p>
+            </div>
+        </footer>
+    </main>
+</div>
+
+<script>
+    function copyPublicUrl(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            const button = event.target.closest('button');
+            const icon = button.querySelector('i');
+            const originalClass = icon.className;
+            icon.className = 'fas fa-check';
+            button.classList.add('text-green-700', 'dark:text-green-300');
+            setTimeout(() => {
+                icon.className = originalClass;
+                button.classList.remove('text-green-700', 'dark:text-green-300');
+            }, 2000);
+        }).catch(() => {
+            alert('Failed to copy URL to clipboard');
+        });
+    }
+
+    // Lightbox effect for images
+    document.addEventListener('DOMContentLoaded', function() {
+        const content = document.getElementById('article-content');
+        if (!content) return;
+        content.querySelectorAll('img').forEach(img => {
+            // Ensure alt attribute for accessibility
+            if (!img.alt || img.alt.trim() === '') {
+                img.alt = 'Article image';
+            }
+            img.style.cursor = 'zoom-in';
+            img.tabIndex = 0;
+            img.addEventListener('click', function() {
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = 0;
+                overlay.style.left = 0;
+                overlay.style.width = '100vw';
+                overlay.style.height = '100vh';
+                overlay.style.background = 'rgba(0,0,0,0.85)';
+                overlay.style.display = 'flex';
+                overlay.style.alignItems = 'center';
+                overlay.style.justifyContent = 'center';
+                overlay.style.zIndex = 10000;
+                overlay.tabIndex = 0;
+                const largeImg = document.createElement('img');
+                largeImg.src = img.src;
+                largeImg.alt = img.alt;
+                largeImg.style.maxWidth = '90vw';
+                largeImg.style.maxHeight = '90vh';
+                largeImg.style.borderRadius = '1rem';
+                overlay.appendChild(largeImg);
+                overlay.addEventListener('click', () => document.body.removeChild(overlay));
+                overlay.addEventListener('keydown', e => { if (e.key === 'Escape') document.body.removeChild(overlay); });
+                document.body.appendChild(overlay);
+                overlay.focus();
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const content = document.getElementById('article-content');
+        if (content) {
+            // Classify images using the enhanced system
+            window.EnhancedSmartImageQuill.classifyImages(content);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const articleContent = document.querySelector('.article-content');
+        if (!articleContent) return;
+
+        articleContent.querySelectorAll('img').forEach(img => {
+            img.addEventListener('click', function() {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,0.9);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    cursor: zoom-out;
+                `;
+
+                const enlargedImg = document.createElement('img');
+                enlargedImg.src = this.src;
+                enlargedImg.alt = this.alt;
+                enlargedImg.style.maxWidth = '90vw';
+                enlargedImg.style.maxHeight = '90vh';
+                enlargedImg.style.objectFit = 'contain';
+
+                overlay.appendChild(enlargedImg);
+                document.body.appendChild(overlay);
+
+                overlay.addEventListener('click', () => {
+                    document.body.removeChild(overlay);
+                });
+            });
+        });
+    });
+</script>
+</body>
+</html>

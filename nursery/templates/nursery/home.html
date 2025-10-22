@@ -1,0 +1,725 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bienvenue chez les Ambassadeurs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Radio+Canada:ital,wght@0,300..700;1,300..700&family=Viga&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Radio+Canada:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
+  {% tailwind_css %}
+</head>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          'viga': ['Viga', 'sans-serif'],
+          'radio': ['Radio Canada', 'sans-serif']
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body {
+    font-family: 'Radio Canada', sans-serif;
+    color: #1e293b;
+    overflow-x: hidden;
+  }
+  a, h1, h2, span{
+    font-family: 'Viga', sans-serif;
+  }
+  .font-viga {
+    font-family: 'Viga', sans-serif;
+    font-weight: 600;
+  }
+  .font-radio {
+    font-family: 'Radio Canada', sans-serif;
+  }
+  .hero-bg {
+    background-image: linear-gradient(to right,
+        rgba(55, 3, 87, 0.8) 0%,
+        rgba(55, 3, 87, 0) 100%),
+      url("{% static 'img/bg-hero.jpeg' %}");
+    height: 100vh;
+  }
+
+  .scrolled {
+    background-color: rgba(78, 23, 154, 0.5);
+    /* Fond sombre pour la navbar */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    position: sticky;
+  }
+
+  .scrolled .text-white {
+    color: #fff;
+  }
+
+  .scrolled a {
+    color: #fff;
+  }
+
+  /* Masque la barre de défilement pour les navigateurs basés sur WebKit (Chrome, Safari, etc.) */
+  #activities-slider::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Masque la barre de défilement pour Internet Explorer, Edge, et Firefox */
+  #activities-slider,
+  #blog-slider {
+    -ms-overflow-style: none;
+    /* IE et Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  @layer components {
+    .btn-hollow {
+      @apply relative overflow-hidden transition-colors duration-500 ease-in-out;
+    }
+
+    .btn-hollow::before {
+      content: '';
+      @apply absolute top-0 left-0 w-full h-full bg-transparent border-2 transition-transform duration-500 ease-in-out transform -translate-x-full;
+    }
+
+    .btn-hollow:hover::before {
+      @apply translate-x-0;
+    }
+  }
+</style>
+
+<body id="top" class="text-gray-900 border-box">
+  <header id="navbar"
+    class="absolute top-0 left-0 right-0 z-20 transition-all duration-300 ease-in-out py-4 flex items-center px-6 lg:px-15 justify-between text-white w-full">
+    <!-- <div
+        class="container  py-4 flex items-center justify-between text-white w-full"
+      > -->
+    <div class="flex items-center">
+      <img src="{%static 'img/logo-ambassadeurs.png'%}" alt="logo-ambassadeurs"
+        class="max-w-1/6 sm:max-w-1/8 lg:max-w-1/10 xl:max-w-1/12 mr-2">
+      <a href="/" class="md:text-2xl font-bold tracking-wide text-xl">GSBL Les Ambassadeurs</a>
+    </div>
+
+    <nav class="flex items-center xl:justify-between text-sm font-semibold xl:flex-3/4 xl:w-full">
+      <ul class="hidden xl:flex items-center space-x-8 min-space">
+        <a href="#" class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Admissions</a>
+        <a href="{% url 'nursery:about' %}"
+          class="py-2 hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">A propos</a>
+
+        <a href="{% url 'nursery:contact'%}"
+          class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Contacts</a>
+        <a href="{% url 'blog:blog_home'%}" class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Notre Blog</a>
+
+      </ul>
+      <button id="menu-button" class="flex items-center space-x-2 text-white hover:text-orange-400 focus:outline-none">
+        <span class="hidden md:block text-lg">Menu</span>
+        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+    <!-- </div> -->
+  </header>
+  <div id="fullscreen-nav"
+    class="fixed top-0 left-0 h-full w-full z-50 bg-white md:bg-gray-100 text-gray-900 overflow-y-auto hidden">
+    <div class="container mx-auto px-4 md:px-8 py-8 md:py-16 h-full">
+      <div class="flex justify-end">
+        <button id="fullscreen-close-button"
+          class="text-gray-900 hover:text-orange-500 transition-colors duration-300 focus:outline-none">
+          <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="h-full mt-4 md:mt-8 flex flex-col md:flex-row md:space-x-12">
+        <div class="hidden md:block md:w-1/2 ">
+          <div class="grid grid-cols-1 gap-4 lg:gap-6">
+            <a href="#" class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/nursery-students.jpeg' %}" alt="Preschool"
+                class="w-full h-48 object-cover transform transition-transform duration-1000 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-lime-600/10 bg-opacity-70 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Garderie</h3>
+              </div>
+            </a>
+            <a href="{% url 'nursery:maternelle'%}" class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/students-cosplay.jpeg' %}" alt="Junior School"
+                class="w-full h-48 object-cover transform transition-transform duration-1000 object-top group-hover:scale-110" />
+              <div class="absolute inset-0 bg-violet-700/10 bg-opacity-70 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Maternelle</h3>
+              </div>
+            </a>
+            <a href="#" class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/majorettes-2.jpeg' %}" alt="Senior School"
+                class="w-full h-48 object-cover transform transition-transform duration-1000 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-orange-500/10 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Primaire</h3>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="md:w-1/3 pt-8 md:pt-0">
+          <h4 class="text-2xl font-bold text-violet-800 mb-4 border-b md:pb-4 border-gray-300 pl-4">
+            Navigation Rapide
+          </h4>
+          <ul class="flex flex-col space-y-2 pl-4">
+            <li>
+              <a href="{% url 'nursery:home'%}" class="block py-2 text-lg hover:text-orange-500">Accueil</a>
+            </li>
+            <li>
+              <a href="#" class="block py-2 text-lg hover:text-orange-500">Admissions</a>
+            </li>
+            <li>
+              <a href="{% url 'nursery:about' %}" class="block py-2 text-lg hover:text-orange-500">A propos</a>
+            </li>
+            <li>
+              <a href="{% url 'nursery:contact'%}" class="block py-2 text-lg hover:text-orange-500">Contact</a>
+            </li>
+            <li>
+              <a href="#" class="block py-2 text-lg hover:text-orange-500">Publications</a>
+            </li>
+          </ul>
+          <ul class="flex flex-col space-y-2 border-t border-gray-300 pt-4 mt-4 pl-4">
+            <li class="py-2 block text-lg text-violet-800 font-semibold">
+              Nos écoles
+            </li>
+            <li>
+              <a href="{%url 'daycare:home'%}" class="block py-2 text-lg hover:text-orange-500 font-medium">Garderie</a>
+            </li>
+            <li>
+              <a href="{%url 'nursery:maternelle'%}" class="block py-2 text-lg hover:text-orange-500 font-medium">Maternelle</a>
+            </li>
+            <li>
+              <a href="{%url 'primaire:home_en'%}" class="block py-2 text-lg hover:text-orange-500 font-medium">Primaire</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <section id="hero" class="relative bg-cover bg-center hero-bg flex items-center">
+    <div class="absolute inset-0 bg-black opacity-45"></div>
+    <div class="flex items-center">
+      <div class="relative z-10 flex flex-col items-start justify-end h-full p-8 md:p-16 text-gray-50">
+        <div class="max-w-3xl">
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight">
+            Le groupe scolaire qui forme des leaders
+          </h1>
+
+          <p class="mt-4 text-lg md:text-xl text-gray-200">
+            Découvrez notre vision éducative innovante et nos valeurs qui
+            guident chaque élève vers la réussite.
+          </p>
+
+          <div class="mt-4 flex flex-wrap gap-2 text-sm text-gray-100 font-bold">
+            <span>Amour</span>
+            <span class="opacity-75">|</span>
+            <span>Travail</span>
+            <span class="opacity-75">|</span>
+            <span>Succès</span>
+          </div>
+        </div>
+
+        <div class="mt-15">
+          <a href="#nos-ecoles"
+            class="inline-block px-8 py-4 text-lg font-bold text-white bg-orange-500 rounded-lg shadow-xl hover:bg-violet-600 transition duration-300 ease-in-out transform hover:-translate-y-1">
+            Decouvrez nos écoles
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="nos-ecoles" class="bg-white py-16 min-h-screen flex justify-center items-center">
+    <div class="container mx-auto px-4 md:px-8 text-center">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-violet-800">
+          Nos Écoles
+        </h2>
+        <p class="mt-4 text-lg text-gray-700">
+          Nous proposons des formations dans les deux sous-systèmes scolaires
+          reconnus au Cameroun, francophone et anglophone. Découvrez nos
+          différents cycles d'apprentissage, de la petite enfance au primaire,
+          où chaque enfant s'épanouit.
+        </p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8 justify-items-center">
+        <a href="{% url 'daycare:home' %}" class="block group h-full">
+          <div
+            class="bg-lime-200 rounded-lg shadow-xl overflow-hidden transform transition-transform duration-300 hover:scale-105 border-2 border-lime-600 hover:border-lime-700 h-full flex flex-col">
+            <img src="{% static 'img/baby-drawing.jpeg' %}" alt="Image de la Garderie"
+              class="w-full h-48 object-cover object-center p-3 rounded-3xl" />
+            <div class="p-6 flex-1 flex flex-col">
+              <h3 class="text-2xl font-bold text-lime-900 transition-colors duration-300">
+                Garderie
+              </h3>
+              <p class="mt-2 text-gray-900 text-justify flex-1">
+                Un environnement chaleureux et sécurisé pour les tout-petits,
+                avec des activités d'éveil.
+              </p>
+            </div>
+          </div>
+        </a>
+
+        <a href="{% url 'nursery:maternelle' %}" class="block group h-full">
+          <div
+            class="bg-violet-200 rounded-lg shadow-xl overflow-hidden transform transition-transform duration-300 hover:scale-105 border-2 border-violet-700 hover:border-violet-800 h-full flex flex-col">
+            <img src="{% static 'img/students-cosplay.jpeg' %}" alt="Image de l'école Maternelle"
+              class="w-full h-48 object-cover p-3 rounded-3xl group-hover:" />
+            <div class="p-6 flex-1 flex flex-col">
+              <h3 class="text-2xl font-bold text-violet-700 transition-colors duration-300">
+                Maternelle
+              </h3>
+              <p class="mt-2 text-gray-900 text-justify flex-1">
+                Le début de l'apprentissage ludique, où chaque enfant
+                développe ses compétences.
+              </p>
+            </div>
+          </div>
+        </a>
+
+        <a href="{% url 'primaire:home_en' %}" class="block group h-full">
+          <div
+            class="bg-orange-200 rounded-lg shadow-xl overflow-hidden transform transition-transform duration-300 hover:scale-105 border-2 border-orange-500 hover:border-orange-600 h-full flex flex-col">
+            <img src="{% static 'img/apres-defile.jpeg' %}" alt="Image de l'école Primaire"
+              class="w-full h-48 object-cover  p-3 rounded-3xl" />
+            <div class="p-6 flex-1 flex flex-col">
+              <h3 class="text-2xl font-bold text-orange-700 transition-colors duration-300">
+                Primaire
+              </h3>
+              <p class="mt-2 text-gray-900 text-justify flex-1">
+                Un programme éducatif solide pour préparer les élèves aux
+                défis de l'avenir.
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="pourquoi-nous-choisir" class="py-16 bg-violet-100 dark:bg-gray-900 min-h-screen flex items-center">
+    <div class="container mx-auto px-4 md:px-8">
+      <div>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-violet-800 dark:text-violet-300 text-center mb-6">
+          Pourquoi nous choisir?
+        </h2>
+        <p class="mb-12 text-lg md:text-xl text-center">
+          Le <span class="font-semibold text-orange-600">Groupe Scolaire Bilingue Laic Les Ambassadeurs</span> met à la
+          disposition de ses apprenants:
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8m-4-4l4 4" />
+          </svg>
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1">Une Section bilingue intégrale</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Où chaque élève reçoit une formation 100% francophone et 100% anglophone.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10-2h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h12a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+          </svg>
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1">Un Encadrement idéal</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Un cadre sûr, stimulant et épanouissant pour l'encadrement de vos enfants.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6m-6-4h6" />
+          </svg>
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1">Un Personnel formé et dévoué </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Un personnel engagé et qualifié pour l'encadrement et l'épanouissement de chaque enfant.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332-.477 4.5-1.253m0-13V3m0 0L21 3L12 12.753M12 3l-9 9.753" />
+          </svg>
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1">Un Suivi particulier</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Un suivi individualisé grâce à la présence de deux enseignants par salle (un anglophone et un
+              francophone).
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1">Une Salle informatique équipée</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Permettant aux enfants d'être initiés dès le bas âge aux NTIC.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 17V12a1 1 0 00-1-1H5a1 1 0 00-1 1v5a1 1 0 001 1h3a1 1 0 001-1zm6 0V12a1 1 0 00-1-1H11a1 1 0 00-1 1v5a1 1 0 001 1h3a1 1 0 001-1zm6 0V12a1 1 0 00-1-1H17a1 1 0 00-1 1v5a1 1 0 001 1h3a1 1 0 001-1z" />
+          </svg>
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1">Une Salle de musique équipée</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              (piano, batterie, guitare...) permettant aux enfants de développer leurs habiletés intellectuelles et
+              artistiques.
+            </p>
+          </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7v4m8-4v4m-5 4h.01M12 16h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path d="M14 18h.01M16 18h.01M18 18h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1">Service de Bus Sécurisé</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Un bus scolaire est mis à la disposition des enfants, garantissant des trajets quotidiens sécurisés et une
+              tranquillité d'esprit pour les parents.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex items-start">
+          <svg class="h-6 w-6 text-orange-500 mr-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19.428 15.428a2 2 0 100-2.856 2 2 0 000 2.856z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13.528 17.528l-4.243-4.243a2 2 0 010-2.828l4.243-4.243a2 2 0 012.828 0l4.243 4.243a2 2 0 010 2.828l-4.243 4.243a2 2 0 01-2.828 0z" />
+          </svg>
+          <div>
+            <h3 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1">Activités Parascolaires et Vacances
+              Actives</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+              Nous offrons une variété d'activités extrascolaires durant l'année et des programmes spéciaux pendant les
+              vacances pour stimuler la créativité et le développement de chaque enfant.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-15 w-full text-center flex flex-col md:flex-row justify-center items-center gap-4">
+        <a href="{% url 'nursery:about' %}"
+          class="relative px-8 py-4 text-lg font-bold text-white bg-violet-700 rounded-lg shadow-xl overflow-hidden group border-2 border-violet-700">
+          <span class="relative z-10 transition-colors duration-300 group-hover:text-violet-700 ">En savoir plus sur
+            nous</span>
+          <span
+            class="absolute inset-0 bg-violet-100 transform -translate-x-full transition-transform duration-500 ease-in-out group-hover:translate-x-0 "></span>
+        </a>
+
+        <!-- <a href="{% static 'flyers-french.jpeg' %}" download
+          class="relative px-8 py-4 text-lg font-bold text-white bg-orange-500  rounded-lg shadow-xl overflow-hidden group border-2 border-orange-500">
+          <span class="relative z-10 transition-colors duration-300 group-hover:text-orange-500">Telecharger les
+            flyers</span>
+          <span
+            class="absolute inset-0 bg-violet-100 transform -translate-x-full transition-transform duration-500 ease-in-out group-hover:translate-x-0 "></span>
+        </a> -->
+        
+      </div>
+
+    </div>
+  </section>
+
+  <section id="activites" class="bg-gray-50 py-16 mt-25">
+    <!-- bg-gradient-to-b from-violet-100 to-gray-100 -->
+    <div class="container mx-auto px-4 lg:px-8">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-violet-800">
+          Nos Activités Périscolaires
+        </h2>
+        <p class="mt-4 text-lg text-gray-600">
+          Bien plus qu'une éducation, nous offrons un large éventail
+          d'activités pour développer les talents et la passion de chaque
+          élève.
+        </p>
+      </div>
+
+      <div class="mt-12 relative">
+        <div id="activities-slider" class="flex overflow-x-scroll snap-x snap-mandatory scroll-smooth">
+
+
+          <div class="snap-start flex-shrink-0 w-full md:w-1/2 xl:w-1/3  px-2 group ">
+            <div
+              class="relative w-full h-80 rounded-lg shadow-xl overflow-hidden">
+              <img src="{% static 'img/red-heart.jpg' %}" alt="Image d'activité musicale"
+                class="absolute inset-0 w-full h-full object-cover z-0  transform transition-transform duration-1000 group-hover:scale-110" />
+
+              <div
+                class="relative z-10 w-full h-full flex items-end p-6 bg-black/20 transition-opacity duration-300 group-hover:bg-opacity-60">
+                <div class="text-white">
+                  <h3 class="text-2xl font-bold">
+                    Sport
+                  </h3>
+                  <p class="mt-2 font-medium">
+                    Nous prônons l'esprit d'équipe et la discipline à travers une
+                    variété de sports.
+                  </p>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="snap-start flex-shrink-0 w-full md:w-1/2 xl:w-1/3  px-2 group">
+            <div
+              class="relative w-full h-80 rounded-lg shadow-xl overflow-hidden">
+              <img src="{% static 'img/students-singing.jpeg' %}" alt="Image d'activité musicale"
+                class="absolute inset-0 w-full h-full object-cover z-0 transform transition-transform duration-1000 group-hover:scale-110" />
+
+              <div
+                class="relative z-10 w-full h-full flex items-end p-6 bg-black/20 transition-opacity duration-300 group-hover:bg-opacity-60">
+                <div class="text-white">
+                  <h3 class="text-2xl font-bold">
+                    Musique
+                  </h3>
+                  <p class="mt-2 font-medium">
+                    Faire découvrir aux enfants la joie de la musique avec nos ateliers.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="snap-start flex-shrink-0 w-full md:w-1/2 xl:w-1/3  px-2 group ">
+            <div
+              class="relative w-full h-80 rounded-lg shadow-xl overflow-hidden">
+              <img src="{% static 'img/art-plastic.jpeg' %}" alt="Image d'activité musicale"
+                class="absolute inset-0 w-full h-full object-cover z-0 transform transition-transform duration-1000 group-hover:scale-110" />
+
+              <div
+                class="relative z-10 w-full h-full flex items-end p-6 bg-black/30 transition-opacity duration-300 group-hover:bg-opacity-60">
+                <div class="text-white">
+                  <h3 class="text-2xl font-bold">
+                    Arts platiques
+                  </h3>
+                  <p class="mt-2 font-medium">
+                    Nos ateliers d'art plastique offrent à nos enfants un espace où leur imagination est la seule limite
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="snap-start flex-shrink-0 w-full md:w-1/2 xl:w-1/3  px-2 group">
+            <div
+              class="relative w-full h-80 rounded-lg shadow-xl overflow-hidden border-2 border-orange-500 hover:border-orange-600">
+              <img src="{% static 'img/students-cosplay.jpeg' %}" alt="Image d'activité musicale"
+                class="absolute inset-0 w-full h-full object-cover z-0 transform transition-transform duration-1000 group-hover:scale-110" />
+
+              <div
+                class="relative z-10 w-full h-full flex items-end p-6 bg-black/30 transition-opacity duration-300 group-hover:bg-opacity-60">
+                <div class="text-white">
+                  <h3 class="text-2xl font-bold">
+                    Théâtre
+                  </h3>
+                  <p class="mt-2 font-medium">
+                    Par le jeu et les contes, chaque enfant peut explorer sa voix et de gagner en confiance
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+
+          <div class="snap-start flex-shrink-0 w-full md:w-1/2 xl:w-1/3  px-2 group">
+            <div
+              class="relative w-full h-80 rounded-lg shadow-xl overflow-hidden border-2 border-orange-500 hover:border-orange-600">
+              <img src="{% static 'img/danse.jpeg' %}" alt="Image d'activité musicale"
+                class="absolute inset-0 w-full h-full object-cover z-0 transform transition-transform duration-1000 group-hover:scale-110" />
+
+              <div
+                class="relative z-10 w-full h-full flex items-end p-6 bg-black/30 transition-opacity duration-300 group-hover:bg-opacity-60">
+                <div class="text-white">
+                  <h3 class="text-2xl font-bold">
+                    Danse
+                  </h3>
+                  <p class="mt-2 font-medium">
+                    Dans cet atelier, les enfants apprennent à s'exprimer avec grâce et à explorer le monde en mouvement.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        
+        </div>
+
+        <div class="absolute lg:inset-y-0 left-0 flex items-center -bottom-12 z-50">
+          <button id="prev-btn"
+            class="bg-white text-orange-500 rounded-full p-2 ml-2 shadow-md transition-colors duration-300 hover:bg-orange-500 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="absolute lg:inset-y-0 right-0 flex items-center -bottom-12 z-50">
+          <button id="next-btn"
+            class="bg-white text-orange-500 rounded-full p-2 mr-2 shadow-md transition-colors duration-300 hover:bg-orange-500 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white dark:bg-gray-800 py-16">
+    <div class="container mx-auto px-4 md:px-8 text-center">
+      <h2 class="text-3xl font-bold text-violet-700 dark:text-violet-300 mb-4">
+        Nos résultats
+      </h2>
+      <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">
+        Nos
+        <span class="font-semibold text-orange-500">résultats 2024-2025</span> ont
+        été exceptionnels et une fois encore, notre ecole se distingue par l'excellence de ses résultats et le rayonnement de ses élèves.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-8">
+          <div class="text-center">
+            <svg class="h-12 w-12 text-orange-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <div class="text-4xl font-bold text-violet-700 dark:text-violet-300">
+              100<span class="text-lg">%</span>
+            </div>
+            <p class="mt-2 text-gray-800 dark:text-gray-400 font-semibold">
+              de réussite aux niveaux 1, 2 et 3
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-8">
+          <div class="text-center">
+            <svg class="h-12 w-12 text-orange-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <div class="text-4xl font-bold text-violet-700 dark:text-violet-300">
+              100<span class="text-lg">%</span>
+            </div>
+            
+            <p class="mt-2 text-gray-800 dark:text-gray-400 font-semibold">
+              aux CEP et Common Entrance
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-8">
+          <div class="text-center">
+            <svg class="h-12 w-12 text-orange-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 12l5-5 5 5M12 19V7" />
+            </svg>
+            
+            <div class="text-4xl font-bold text-violet-700 dark:text-violet-300">
+              100<span class="text-lg">%</span>
+            </div>
+            <p class="mt-2 text-gray-800 dark:text-gray-400 font-semibold">
+              aux concours d'entrée en 6eme et Form 1.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="blog-posts" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 md:px-8">
+      <div class="max-w-4xl mx-auto text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-violet-800">
+          Dernières Nouvelles
+        </h2>
+        <p class="mt-4 text-lg text-gray-600">
+          Restez à jour avec les dernières actualités et événements de notre
+          groupe scolaire.
+        </p>
+      </div>
+
+      <div class="relative">
+        <div id="blog-slider" class="flex overflow-x-scroll snap-x snap-mandatory scroll-smooth">
+          {% if articles %}
+            {% for a in articles %}
+              <div class="snap-start flex-shrink-0 w-full md:w-1/2 xl:w-1/3 px-4">
+                <a href="{% url 'blog:public_article' a.slug %}" class="block group">
+                  <div class="bg-white rounded-lg overflow-hidden border-2 border-violet-700 hover:border-violet-800 shadow-lg">
+                    <img src="{% if a.showcase_image and a.showcase_image.link %}{{ a.showcase_image.link }}{% else %}{% static 'images/ambassadors_logo.png' %}{% endif %}" alt="{{ a.title }}" class="w-full h-64 object-cover transform transition-transform duration-1000 group-hover:scale-110" />
+                    <div class="p-6">
+                      <h3 class="text-xl font-bold text-violet-700 group-hover:text-orange-500">{{ a.title }}</h3>
+                      <p class="mt-2 text-sm text-gray-500">{{ a.published_at|date:"D d M Y" }}</p>
+                      <p class="mt-2 text-gray-600">{{ a.summary|default:'Aucun résumé disponible'|truncatewords:25 }}</p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="w-full px-4">
+              <div class="bg-white rounded-lg p-8 text-center border-2 border-violet-700 shadow-lg">
+                <p class="text-gray-600">Aucun article pour le moment. Revenez bientôt !</p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+        <div class="absolute lg:inset-y-0 left-0 flex items-center -bottom-12">
+          <button id="prev-blog-btn"
+            class="bg-white text-violet-800 rounded-full p-2 ml-2 shadow-md transition-colors duration-300 hover:bg-violet-800 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+          </button>
+        </div>
+        <div class="absolute lg:inset-y-0 right-0 flex items-center -bottom-12">
+          <button id="next-blog-btn"
+            class="bg-white text-violet-800 rounded-full p-2 mr-2 shadow-md transition-colors duration-300 hover:bg-violet-800 hover:text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% include 'components/_unified_footer.html' with theme='nursery' %}
+  <script src="{% static 'js/app.js' %}"></script>
+</body>
+
+</html>

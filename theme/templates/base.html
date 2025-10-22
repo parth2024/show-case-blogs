@@ -1,20 +1,35 @@
 {% load static tailwind_tags %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <title>Django Tailwind</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>{% block title %} Les Ambassadeurs {% endblock%}</title>
     {% tailwind_css %}
-</head>
+  </head>
+  <style>
+    body {
+      font-family: 'Radio Canada', sans-serif;
+      color: #1e293b;
+      overflow-x: hidden;
+    }
+    a, h1, h2, span{
+      font-family: 'Viga', sans-serif;
+    }
+    .font-viga {
+      font-family: 'Viga', sans-serif;
+      font-weight: 600;
+    }
+    .font-radio {
+      font-family: 'Radio Canada', sans-serif;
+    }
+  </style>
 
-<body class="bg-gray-50 text-black font-serif leading-normal tracking-normal">
-
-<div class="container mx-auto">
-    <section class="flex items-center justify-center h-screen">
-        <h1 class="text-5xl">Django + Tailwind = ❤️</h1>
-    </section>
-</div>
-</body>
+  <body>
+    <!-- {% include "components/_header.html" %} -->
+    {% block content %} {% endblock %} {% include "components/_footer.html" %}
+    <script src="{% static 'js/app.js' %}"></script>
+  </body>
 </html>

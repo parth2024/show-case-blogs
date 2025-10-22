@@ -1,0 +1,100 @@
+{% load static %}
+<footer class="{{ main_bg }} text-white py-12">
+  <div class="container mx-auto px-6 md:px-4">
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-12 text-center md:text-left">
+      <!-- Logo and Social Media -->
+      <div class="md:col-span-1 flex flex-col items-center md:items-start">
+        <img src="{% static 'images/ambassadors_logo.png' %}" alt="Les Ambassadeurs Logo" class="h-16 mb-4">
+        <p class="{{ text_muted }} text-sm mb-4">Suivez-nous sur les réseaux sociaux pour ne rien manquer de nos actualités.</p>
+        <div class="flex space-x-4">
+          <a href="https://www.facebook.com/p/Groupe-Scolaire-Bilingue-Les-Ambassadeurs-100085542701437/" class="{{ text_muted }} {{ link_hover }}"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/" class="{{ text_muted }} {{ link_hover }}"><i class="fab fa-instagram"></i></a>
+          <a href="https://whatsapp.com/channel/0029VbAKqqz7Noa5NYT9Mr1E" class="{{ text_muted }} {{ link_hover }}"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div>
+        <h4 class="text-xl font-bold mb-4">Navigation</h4>
+        <ul class="space-y-2 font-radio">
+          <li><a href="{% url 'nursery:home' %}" class="{{ text_muted }} {{ link_hover }} transition-colors">Accueil</a></li>
+          <li><a href="{% url 'daycare:home' %}" class="{{ text_muted }} {{ link_hover }} transition-colors">Garderie</a></li>
+          <li><a href="{% url 'nursery:maternelle' %}" class="{{ text_muted }} {{ link_hover }} transition-colors">Maternelle</a></li>
+          <li><a href="{% url 'primaire:home_en' %}" class="{{ text_muted }} {{ link_hover }} transition-colors">Primaire</a></li>
+          <li><a href="{% url 'blog:blog_home' %}" class="{{ text_muted }} {{ link_hover }} transition-colors">Publications</a></li>
+          <li><a href="#contact" class="{{ text_muted }} {{ link_hover }} transition-colors">Contact</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div>
+        <h4 class="text-lg font-semibold mb-4">Nous contacter</h4>
+        <ul class="text-sm space-y-3">
+          <li class="flex items-start justify-center md:justify-start">
+            <i class="fas fa-map-marker-alt {{ accent }} mr-2 mt-1 flex-shrink-0"></i>
+            <span class="{{ text_muted }}">Quartier Tigaza, Bertoua, Cameroun</span>
+          </li>
+          <li class="flex items-start justify-center md:justify-start">
+            <i class="fas fa-phone {{ accent }} mr-2 mt-1 flex-shrink-0"></i>
+            <div class="{{ text_muted }}">
+              <a href="tel:+237699090190">(+237) 699 090 190</a><br>
+              <a href="tel:+237677198810">(+237) 677 198 810</a><br>
+              <a href="tel:+237695955402">(+237) 695 955 402</a><br>
+              <a href="tel:+237691377878">(+237) 691 377 878</a>
+            </div>
+          </li>
+          <li class="flex items-start justify-center md:justify-start break-all">
+            <i class="fas fa-envelope {{ accent }} mr-2 mt-1 flex-shrink-0"></i>
+            <a href="mailto:contact@ambassadeurs.edu" class="{{ text_muted }}">contact@ambassadeurs.edu</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="md:col-span-2 flex flex-col items-center">
+        <h4 class="text-lg font-semibold mb-4">Newsletter</h4>
+        <p class="{{ text_muted }} text-sm mb-4">Restez informé(e) des actualités en vous abonnant.</p>
+        <form action="{% url 'blog:subscribe_newsletter' %}" method="POST" class="flex flex-col space-y-2 items-stretch md:items-center w-full max-w-md">
+          {% csrf_token %}
+          <input type="text" name="name" placeholder="Votre nom" class="w-full px-4 py-2 rounded-md text-gray-800 focus:outline-none bg-white">
+          <div class="flex flex-col sm:flex-row w-full">
+            <input type="email" name="email" placeholder="Votre email" class="flex-grow bg-white px-4 py-2 rounded-md sm:rounded-r-none text-gray-800 focus:outline-none">
+            <button type="submit" class="{{ btn_bg }} text-white px-4 py-2 rounded-md sm:rounded-l-none mt-2 sm:mt-0 font-viga">S'abonner</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="border-t border-white/20 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center text-center md:text-left space-y-4 md:space-y-0">
+      <div class="text-sm {{ text_muted }}">
+        <p>© {% now "Y" %} Groupe Scolaire Bilingue Les Ambassadeurs. Tous droits réservés.</p>
+      </div>
+      <div class="text-sm {{ text_muted }}">
+        <p>Made with &#10084;&#65039; by ID-Group</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<a id="toTopButton" href="#" class="flex items-center text-gray-100 fixed bottom-10 right-6 p-2 font-bold rounded-full shadow-lg transition-opacity duration-300 invisible pointer-events-none z-50 {{ to_top_bg }}">
+  <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414-1.414L10 7.586 6.707 10.879a1 1 0 11-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd"></path></svg>
+</a>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const toTopButton = document.getElementById('toTopButton');
+    if (toTopButton) {
+      window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+          toTopButton.classList.remove('invisible', 'pointer-events-none');
+        } else {
+          toTopButton.classList.add('invisible', 'pointer-events-none');
+        }
+      });
+      toTopButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+  });
+</script>

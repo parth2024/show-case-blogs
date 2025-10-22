@@ -1,0 +1,249 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Home Page</title>
+    {% tailwind_css %}
+  </head>
+  <style>
+    .hero-bg {
+      background-image: linear-gradient(
+          to right,
+          rgba(55, 3, 87, 0.8) 0%,
+          rgba(55, 3, 87, 0) 100%
+        ),
+        url("../../static/img/bg-hero.jpeg");
+      height: 100vh;
+    }
+
+    .scrolled {
+      background-color: #4d179a; /* Fond sombre pour la navbar */
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: sticky;
+    }
+
+    .scrolled .text-white {
+      color: #fff;
+    }
+    .scrolled a {
+      color: #fff;
+    }
+
+    /* Masque la barre de défilement pour les navigateurs basés sur WebKit (Chrome, Safari, etc.) */
+    #activities-slider::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Masque la barre de défilement pour Internet Explorer, Edge, et Firefox */
+    #activities-slider,
+    #blog-slider {
+      -ms-overflow-style: none; /* IE et Edge */
+      scrollbar-width: none; /* Firefox */
+    }
+  </style>
+  <body class="text-gray-900 border-box">
+    <header id="navbar"
+    class="absolute top-0 left-0 right-0 z-20 transition-all duration-300 ease-in-out py-4 flex items-center px-6 lg:px-15 justify-between text-white w-full">
+    <!-- <div
+        class="container  py-4 flex items-center justify-between text-white w-full"
+      > -->
+    <div class="flex flex-col items-center">
+      <a href="/" class="md:text-2xl font-bold tracking-wide text-xl">GSBL Les Ambassadeurs</a>
+    </div>
+
+    <nav class="flex items-center space-x-6 text-sm font-semibold">
+      <ul class="hidden md:flex items-center space-x-6">
+        <a href="{% url 'about' %}"
+          class="py-2 hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">A propos</a>
+        <a href="#" class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Admissions</a>
+        <a href="{% url 'contact'%}" class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Contacts</a>
+        <a href="#" class="hover:text-orange-300 hover:underline transition-colors duration-300 text-lg">Our Blog</a>
+
+      </ul>
+      <button id="menu-button" class="flex items-center space-x-2 text-white hover:text-orange-400 focus:outline-none">
+        <span class="hidden md:block text-lg">Menu</span>
+        <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </nav>
+    <!-- </div> -->
+  </header>
+  <div id="fullscreen-nav"
+    class="fixed top-0 left-0 h-full w-full z-50 bg-white md:bg-gray-100 text-gray-900 overflow-y-auto hidden">
+    <div class="container mx-auto px-4 md:px-8 py-8 md:py-16 h-full">
+      <div class="flex justify-end">
+        <button id="fullscreen-close-button"
+          class="text-gray-900 hover:text-orange-500 transition-colors duration-300 focus:outline-none">
+          <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="h-full mt-4 md:mt-8 flex flex-col md:flex-row md:space-x-12">
+        <div class="hidden md:block md:w-2/3 lg:w-3/4">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+            <a href="#" class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/preschool.jpg' %}" alt="Preschool"
+                class="w-full h-48 object-cover transform transition-transform duration-300 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-violet-900 bg-opacity-70 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Garderie</h3>
+              </div>
+            </a>
+            <a href="#" class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/juniorschool.jpg' %}" alt="Junior School"
+                class="w-full h-48 object-cover transform transition-transform duration-300 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-violet-900 bg-opacity-70 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Maternelles</h3>
+              </div>
+            </a>
+            <a href="#" class="group relative block overflow-hidden rounded-lg shadow-lg">
+              <img src="{% static 'img/seniorschool.jpg' %}" alt="Senior School"
+                class="w-full h-48 object-cover transform transition-transform duration-300 group-hover:scale-110" />
+              <div class="absolute inset-0 bg-violet-900 bg-opacity-70 flex items-end p-4">
+                <h3 class="text-white text-xl font-bold">Primaires</h3>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="md:w-1/3 pt-8 md:pt-0">
+          <h4 class="text-2xl font-bold text-violet-800 mb-4 border-b md:pb-4 border-gray-300 pl-4">
+            Navigation Rapide
+          </h4>
+          <ul class="flex flex-col space-y-2 pl-4">
+            <li>
+              <a href="#" class="block py-2 text-lg hover:text-orange-500">Accueil</a>
+            </li>
+            <li>
+              <a href="{% url 'about' %}" class="block py-2 text-lg hover:text-orange-500">A propos</a>
+            </li>
+            <li>
+              <a href="{% url 'contact'%}" class="block py-2 text-lg hover:text-orange-500">Contact</a>
+            </li>
+            <li>
+              <a href="#" class="block py-2 text-lg hover:text-orange-500">Nouvelles & Blog</a>
+            </li>
+          </ul>
+          <ul class="flex flex-col space-y-2 border-t border-gray-300 pt-4 mt-4 pl-4">
+            <li class="py-2 block text-lg text-violet-800 font-semibold">
+              Nos écoles
+            </li>
+            <li>
+              <a href="#" class="block py-2 text-lg hover:text-orange-500 font-medium">Garderie</a>
+            </li>
+            <li>
+              <a href="#" class="block py-2 text-lg hover:text-orange-500 font-medium">Maternelles</a>
+            </li>
+            <li>
+              <a href="#" class="block py-2 text-lg hover:text-orange-500 font-medium">Primaires</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="bg-violet-900 dark:bg-gray-900 text-gray-200 font-medium">
+    <div class="container mx-auto px-8 py-16">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div>
+          <h4 class="font-bold text-white mb-4 text-xl">Généraux</h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="#" class="hover:text-orange-400 transition-colors duration-300">Accueil</a>
+            </li>
+            <li>
+              <a href="#" class="hover:text-orange-400 transition-colors duration-300">A propos de nous</a>
+            </li>
+
+            <li>
+              <a href="#" class="hover:text-orange-400 transition-colors duration-300">Publications et galeries</a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-white mb-4 text-xl">Contacts</h4>
+          <div class="space-y-4">
+            <p class="text-lg"><strong>Numéros principaux :</strong></p>
+            <ul class="space-y-1">
+              <li>Administration generale : <a href="tel:+237">01223 352523</span></li>
+
+              <li>
+                Maternelle bilingue:
+                <a href="tel:+237">01223 311666</span>
+              </li>
+
+              <li>
+                Primaire bilingue:
+                <a href="tel:+237">01223 224167</span>
+              </li>
+              <li>
+                Garderie:
+                <a href="tel:+237">+44 (0) 1223 224 157</span>
+              </li>
+            </ul>
+            <p class="text-lg"><strong>Adresses e-mail:</strong></p>
+            <ul>
+              <li>Administration : <a href="mailto:lesambassadeurs@gmail.com">lesambassadeurs@gmail.com</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div></div>
+
+        <div class="md:col-span-2 lg:col-span-1">
+          <h4 class="font-bold text-white mb-4">Suivez-nous</h4>
+          <div class="flex space-x-4">
+            <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors duration-300">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                ...
+              </svg>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors duration-300">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                ...
+              </svg>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors duration-300">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                ...
+              </svg>
+            </a>
+            <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors duration-300">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                ...
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-violet-950 dark:bg-gray-950 py-4 px-8 text-center text-gray-400 text-sm">
+      <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between">
+        <p class="mb-4 md:mb-0">
+          © 2025 Groupe Scolaire Bilingue Les Ambassadeurs. Tous droits
+          réservés.
+
+        </p>
+        <p class="mb-4 md:mb-0">Localisation: Quartier Tigaza, derrière le GMI au lieu dit "Ambassade du Christ", Bertoua</p>
+      </div>
+    </div>
+  </footer>
+  <a id="toTopButton" href="#top"
+    class="flex items-center text-gray-100 hover:bg-orange-600/85 bg-violet-700/80 fixed bottom-10 right-6 p-2 font-bold rounded-full shadow-lg transition-opacity duration-300 invisible pointer-events-none z-50">
+    <svg class="h-8 w-8" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd"
+        d="M14.707 12.707a1 1 0 01-1.414-1.414L10 7.586 6.707 10.879a1 1 0 11-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+        clip-rule="evenodd"></path>
+    </svg>
+  </a>
+
+    <script src="{% static 'js/app.js' %}"></script>
+  </body>
+</html>

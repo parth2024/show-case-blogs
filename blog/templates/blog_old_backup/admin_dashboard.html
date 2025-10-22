@@ -1,0 +1,247 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Dashboard - Ambassador's Blog{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Additional dashboard styles */
+    .sidebar-transition {
+        transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="h-full flex" x-data="{ sidebarOpen: true, isMobile: window.innerWidth < 1024 }" 
+     x-init="$watch('sidebarOpen', value => { if (isMobile && value) { setTimeout(() => sidebarOpen = false, 3000); } })">
+    
+    <!-- Sidebar -->
+    <nav class="bg-gray-900 text-white flex-shrink-0 sidebar-transition"
+         :class="sidebarOpen ? 'w-64' : 'w-16'"
+         x-show="!isMobile || sidebarOpen">
+        
+        <!-- Logo -->
+        <div class="px-6 py-6 border-b border-gray-700">
+            <div class="flex items-center">
+                <div class="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-blog text-white text-sm"></i>
+                </div>
+                <div class="ml-3 overflow-hidden transition-all duration-200" :class="sidebarOpen ? 'w-auto opacity-100' : 'w-0 opacity-0'">
+                    <h1 class="text-lg font-heading font-bold whitespace-nowrap">Blog Admin</h1>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="px-3 py-6 space-y-2">
+            <a href="{% url 'blog:admin_dashboard' %}" class="flex items-center px-3 py-2.5 rounded-lg bg-primary-600 text-white">
+                <i class="fas fa-tachometer-alt w-5 text-center"></i>
+                <span class="ml-3 font-medium transition-all duration-200" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">Dashboard</span>
+            </a>
+            <a href="{% url 'blog:create_article' %}" class="flex items-center px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
+                <i class="fas fa-plus w-5 text-center"></i>
+                <span class="ml-3 font-medium transition-all duration-200" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">New Article</span>
+            </a>
+            <a href="{% url 'blog:admin_profile' %}" class="flex items-center px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
+                <i class="fas fa-user w-5 text-center"></i>
+                <span class="ml-3 font-medium transition-all duration-200" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">Profile</span>
+            </a>
+            <a href="{% url 'blog:admin_archived' %}" class="flex items-center px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
+                <i class="fas fa-archive w-5 text-center"></i>
+                <span class="ml-3 font-medium transition-all duration-200" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">Archived</span>
+            </a>
+            {% if is_authorized_creator %}
+            <a href="{% url 'blog:create_admin_user' %}" class="flex items-center px-3 py-2.5 rounded-lg text-gray-300 hover:bg-gray-800 hover:text-white transition-colors">
+                <i class="fas fa-user-plus w-5 text-center"></i>
+                <span class="ml-3 font-medium transition-all duration-200" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">Add Admin</span>
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- User section -->
+        <div class="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-700">
+            <div class="flex items-center" :class="sidebarOpen ? 'justify-start' : 'justify-center'">
+                <div class="h-8 w-8 bg-primary-600 rounded-full flex items-center justify-center">
+                    <span class="text-sm font-semibold text-white">{{ admin_name|slice:":1"|upper }}</span>
+                </div>
+                <div class="ml-3 overflow-hidden transition-all duration-200" :class="sidebarOpen ? 'w-auto opacity-100' : 'w-0 opacity-0'">
+                    <p class="text-sm font-medium whitespace-nowrap">{{ admin_name }}</p>
+                    <p class="text-xs text-gray-400 whitespace-nowrap">Administrator</p>
+                </div>
+            </div>
+            <a href="{% url 'blog:admin_logout' %}" class="mt-3 flex items-center px-3 py-2 rounded-lg text-red-400 hover:bg-red-900/20 transition-colors" :class="sidebarOpen ? 'justify-start' : 'justify-center'">
+                <i class="fas fa-sign-out-alt w-5 text-center"></i>
+                <span class="ml-3 text-sm transition-all duration-200" :class="sidebarOpen ? 'opacity-100' : 'opacity-0'">Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Mobile backdrop -->
+    <div x-show="isMobile && sidebarOpen" @click="sidebarOpen = false" 
+         class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 lg:hidden"></div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button @click="sidebarOpen = !sidebarOpen" class="btn-ghost p-2">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl font-heading font-bold text-gray-900">Dashboard</h1>
+                        <p class="text-sm text-gray-600">Welcome back, {{ admin_name }}!</p>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-500">
+                    {% now "F j, Y" %}
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="flex-1 overflow-y-auto p-6">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-2xl font-heading font-bold text-gray-900">{{ stats.published_articles }}</p>
+                            <p class="text-sm text-gray-600">Published Articles</p>
+                        </div>
+                        <div class="h-12 w-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-newspaper text-primary-600"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-2xl font-heading font-bold text-gray-900">{{ stats.subscribers }}</p>
+                            <p class="text-sm text-gray-600">Newsletter Subscribers</p>
+                        </div>
+                        <div class="h-12 w-12 bg-secondary-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-users text-secondary-600"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-2xl font-heading font-bold text-gray-900">{{ stats.total_likes }}</p>
+                            <p class="text-sm text-gray-600">Total Likes</p>
+                        </div>
+                        <div class="h-12 w-12 bg-pink-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-heart text-pink-600"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Create -->
+            <div class="card p-6 mb-8">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <form method="get" class="flex-1">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input 
+                                type="text" 
+                                name="search" 
+                                value="{{ search_query }}"
+                                placeholder="Search articles..."
+                                class="input pl-10"
+                            >
+                        </div>
+                    </form>
+                    <a href="{% url 'blog:create_article' %}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create Article
+                    </a>
+                </div>
+            </div>
+
+            <!-- Articles List -->
+            <div class="card">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-heading font-semibold text-gray-900">Recent Articles</h2>
+                </div>
+                
+                {% if articles %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for article in articles %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-medium text-gray-900">{{ article.title|default:"Untitled" }}</div>
+                                    {% if article.summary %}
+                                    <div class="text-sm text-gray-500">{{ article.summary|truncatechars:60 }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                        {% if article.status == 'published' %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                        {{ article.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ article.created_at|date:"M d, Y" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-2">
+                                        <a href="{% url 'blog:view_article' article.id %}" class="text-blue-600 hover:text-blue-900">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'blog:edit_article' article.id %}" class="text-primary-600 hover:text-primary-900">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if article.status == 'draft' %}
+                                        <a href="{% url 'blog:toggle_article_status' article.id %}" class="text-green-600 hover:text-green-900" title="Publish">
+                                            <i class="fas fa-upload"></i>
+                                        </a>
+                                        {% elif article.status == 'published' %}
+                                        <a href="{% url 'blog:toggle_article_status' article.id %}" class="text-yellow-600 hover:text-yellow-900" title="Unpublish">
+                                            <i class="fas fa-download"></i>
+                                        </a>
+                                        {% endif %}
+                                        <a href="{% url 'blog:archive_article' article.id %}" class="text-red-600 hover:text-red-900" title="Archive">
+                                            <i class="fas fa-archive"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="px-6 py-12 text-center">
+                    <div class="h-12 w-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-newspaper text-gray-400"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No articles yet</h3>
+                    <p class="text-gray-600 mb-4">Get started by creating your first article.</p>
+                    <a href="{% url 'blog:create_article' %}" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>
+                        Create First Article
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

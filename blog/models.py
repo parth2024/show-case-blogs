@@ -8,10 +8,16 @@ from django.conf import settings
 
 
 class Admin(models.Model):
-    """Custom admin model for blog administration"""
+    """Custom admin model for blog administration with roles"""
+    ROLE_CHOICES = (
+        ('admin', 'Admin'),
+        ('editor', 'Editor'),
+    )
+
     name = models.CharField(max_length=100, null=True, blank=True)
     email = models.CharField(max_length=254, null=True, blank=True, unique=True)
     password = models.CharField(max_length=128, null=True, blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='editor')
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     is_active = models.BooleanField(default=True)
@@ -45,6 +51,28 @@ class User(models.Model):
         db_table = 'blog_user'
 
 
+from django_ckeditor_5.fields import CKEditor5Field
+
+
+class Category(models.Model):
+    """Article categories managed by blog admins"""
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=120, unique=True, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        db_table = 'blog_category'
+        ordering = ['name']
+
+
 class Article(models.Model):
     """Blog articles"""
     STATUS_CHOICES = [
@@ -63,10 +91,10 @@ class Article(models.Model):
         blank=True,
         related_name='showcase_articles'
     )
-    content = models.TextField(null=True, blank=True)
-    content_json = JSONField(null=True, blank=True)  # Stores Quill Delta
+    content = CKEditor5Field(blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     author = models.ForeignKey(Admin, on_delete=models.SET_NULL, null=True, blank=True)
+    categories = models.ManyToManyField(Category, related_name='articles', blank=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     published_at = models.DateTimeField(null=True, blank=True)
@@ -145,7 +173,7 @@ class Article(models.Model):
     def get_absolute_url(self):
         """Get the public URL for this article"""
         from django.urls import reverse
-        return reverse('public_article', kwargs={'slug': self.slug})
+        return reverse('blog:public_article', kwargs={'slug': self.slug})
 
     def increment_view_count(self):
         """Increment the view count for this article"""

@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.utils.decorators import method_decorator
 from django.views import View
 from .models import *
+from .forms import ArticleForm, ProfileForm, AdminCreationForm, CategoryForm
 from django.http import JsonResponse, Http404
 from django.db.models import Q, Count
 from django.urls import reverse
@@ -25,7 +26,7 @@ class LoginView(View):
         """Display login form"""
         # Redirect to dashboard if already logged in
         if request.session.get('admin_id'):
-            return redirect('admin_dashboard')
+            return redirect('blog:admin_dashboard')
         return render(request, self.template_name)
 
     def post(self, request):
@@ -46,7 +47,7 @@ class LoginView(View):
                 request.session['admin_email'] = admin.email
 
                 messages.success(request, f'Welcome back, {admin.name}!')
-                return redirect('admin_dashboard')
+                return redirect('blog:admin_dashboard')
             else:
                 messages.error(request, 'Invalid email or password.')
         except Admin.DoesNotExist:
@@ -59,7 +60,7 @@ def logout_view(request):
     """Handle admin logout"""
     request.session.flush()
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('admin_login')
+    return redirect('blog:admin_login')
 
 
 def admin_required(view_func):
@@ -67,7 +68,7 @@ def admin_required(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.session.get('admin_id'):
             messages.error(request, 'Please log in to access the admin panel.')
-            return redirect('admin_login')
+            return redirect('blog:admin_login')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -76,10 +77,13 @@ def admin_required(view_func):
 def dashboard_view(request):
     """Main dashboard with statistics and article management"""
 
-    authorized_admins = ['Franck Yoteu', 'Arsene Minkam', 'Liboire Minkam', 'Yoteu Rovani', 'Kpaga Kombo']
-    is_authorized_creator = request.session.get('admin_name') in authorized_admins
-
-    print(f"Authorized creator: {is_authorized_creator}")
+    # Role-based authorization
+    is_authorized_creator = False
+    try:
+        current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+        is_authorized_creator = current_admin.role == 'admin'
+    except Admin.DoesNotExist:
+        pass
 
     # Get statistics
     stats = {
@@ -94,8 +98,8 @@ def dashboard_view(request):
     # Get search query if any
     search_query = request.GET.get('search', '').strip()
 
-    # Get all articles (excluding archived by default)
-    articles = Article.objects.filter(status__in=['published', 'draft']).order_by('-created_at')
+    # Get all articles (excluding archived by default) - optimized with select_related
+    articles = Article.objects.filter(status__in=['published', 'draft']).select_related('author', 'showcase_image').prefetch_related('categories').order_by('-created_at')
 
     # Apply search filter if provided
     if search_query:
@@ -151,11 +155,11 @@ class PublicArticleView(View):
             reading_time = self.calculate_reading_time(article.content)
             processed_content = process_content_for_display(article.content)
 
-            # Get related articles (same author, excluding current)
+            # Get related articles (same author, excluding current) - optimized
             related_articles = Article.objects.filter(
                 author=article.author,
                 status='published'
-            ).exclude(id=article.id)[:3]
+            ).select_related('author', 'showcase_image').exclude(id=article.id)[:3]
 
             # Get approved comments
             comments = article.comments.filter(is_approved=True)
@@ -193,7 +197,7 @@ class PublicArticleView(View):
 
         if not user_name or not user_email or not content:
             messages.error(request, 'Please fill in all fields.')
-            return redirect('public_article', slug=slug)
+            return redirect('blog:public_article', slug=slug)
 
         # Create comment (initially not approved)
         comment = Comment.objects.create(
@@ -205,7 +209,7 @@ class PublicArticleView(View):
         )
 
         messages.success(request, 'Your comment has been submitted and is awaiting approval.')
-        return redirect('public_article', slug=slug)
+        return redirect('blog:public_article', slug=slug)
 
 
 class BlogHomeView(View):
@@ -214,14 +218,14 @@ class BlogHomeView(View):
 
     def get(self, request):
         """Display blog homepage with published articles"""
-        # Get featured articles
+        # Get featured articles - optimized
         featured_articles = Article.objects.filter(
             status='published',
             is_featured=True
-        ).order_by('-published_at')[:3]
+        ).select_related('author', 'showcase_image').prefetch_related('categories').order_by('-published_at')[:3]
 
-        # Get recent articles
-        articles = Article.objects.filter(status='published').order_by('-published_at')
+        # Get recent articles - optimized
+        articles = Article.objects.filter(status='published').select_related('author', 'showcase_image').prefetch_related('categories').order_by('-published_at')
 
         # Get search query if any
         search_query = request.GET.get('search', '').strip()
@@ -272,7 +276,7 @@ def view_article(request, article_id):
 
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
-        return redirect('admin_dashboard')
+        return redirect('blog:admin_dashboard')
 
 
 @method_decorator(admin_required, name='dispatch')
@@ -281,80 +285,86 @@ class CreateArticleView(View):
 
     def get(self, request):
         """Display the article creation form"""
+        form = ArticleForm()
+        categories = Category.objects.all().order_by('name')
+        can_manage_categories = False
+        try:
+            current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+            can_manage_categories = current_admin.role == 'admin'
+        except Admin.DoesNotExist:
+            pass
         context = {
+            'form': form,
             'admin_name': request.session.get('admin_name', 'Admin'),
+            'categories': categories,
+            'can_manage_categories': can_manage_categories,
         }
         return render(request, self.template_name, context)
 
     def post(self, request):
         """Handle article creation"""
-        title = request.POST.get('title', '').strip()
-        summary = request.POST.get('summary', '').strip()
-        content = request.POST.get('content', '').strip()
+        form = ArticleForm(request.POST)
         showcase_image_id = request.POST.get('showcase_image')
-        status = request.POST.get('status', 'draft')
-        is_featured = request.POST.get('is_featured') == 'on'
-
-        if not title or not content:
-            messages.error(request, 'Title and content are required.')
-            context = {
-                'admin_name': request.session.get('admin_name', 'Admin'),
-                'title': title,
-                'summary': summary,
-                'content': content,
-                'status': status,
-                'is_featured': is_featured
-            }
-            return render(request, self.template_name, context)
-
+        
         try:
             admin_id = request.session.get('admin_id')
             author = Admin.objects.get(id=admin_id)
 
-            # Create article
-            article = Article(
-                title=title,
-                summary=summary,
-                content=content,
-                status=status,
-                author=author,
-                is_featured=is_featured
-            )
+            # Optionally create a new category (admins only)
+            new_category_name = request.POST.get('new_category', '').strip()
+            if new_category_name and author.role == 'admin':
+                Category.objects.get_or_create(name=new_category_name)
 
-            # Set showcase image if provided
-            if showcase_image_id:
-                try:
-                    showcase_image = Attachment.objects.get(id=showcase_image_id)
-                    article.showcase_image = showcase_image
-                except Attachment.DoesNotExist:
-                    pass
+            if form.is_valid():
+                article = form.save(commit=False)
+                article.author = author
 
-            if status == 'published':
-                article.published_at = timezone.now()
+                # Set showcase image if provided
+                if showcase_image_id:
+                    try:
+                        showcase_image = Attachment.objects.get(id=showcase_image_id)
+                        article.showcase_image = showcase_image
+                    except Attachment.DoesNotExist:
+                        pass
 
-            article.save()
+                # Set published_at if status is published
+                if article.status == 'published':
+                    article.published_at = timezone.now()
 
-            if status == 'published':
-                messages.success(request, f'Article "{title}" published successfully.')
+                article.save()
+                form.save_m2m()  # Save many-to-many relationships (categories)
+
+                if article.status == 'published':
+                    messages.success(request, f'Article "{article.title}" published successfully.')
+                else:
+                    messages.success(request, f'Article "{article.title}" saved as draft.')
+
+                return redirect('blog:admin_dashboard')
             else:
-                messages.success(request, f'Article "{title}" saved as draft.')
-
-            return redirect('admin_dashboard')
+                messages.error(request, 'Please correct the errors in the form.')
 
         except Admin.DoesNotExist:
             messages.error(request, 'Author not found. Please log in again.')
-            return redirect('admin_login')
+            return redirect('blog:admin_login')
         except Exception as e:
             messages.error(request, f'An error occurred: {e}')
-            context = {
-                'admin_name': request.session.get('admin_name', 'Admin'),
-                'title': title,
-                'summary': summary,
-                'content': content,
-                'status': status,
-                'is_featured': is_featured
-            }
-            return render(request, self.template_name, context)
+        
+        # Re-render form with errors
+        categories = Category.objects.all().order_by('name')
+        can_manage_categories = False
+        try:
+            current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+            can_manage_categories = current_admin.role == 'admin'
+        except Admin.DoesNotExist:
+            pass
+        
+        context = {
+            'form': form,
+            'admin_name': request.session.get('admin_name', 'Admin'),
+            'categories': categories,
+            'can_manage_categories': can_manage_categories,
+        }
+        return render(request, self.template_name, context)
 
 
 @method_decorator(admin_required, name='dispatch')
@@ -380,7 +390,7 @@ class PreviewArticleView(View):
 
         if not title or not content:
             messages.error(request, 'Title and content are required to preview the article.')
-            return redirect('create_article')
+            return redirect('blog:create_article')
 
         try:
             admin_id = request.session.get('admin_id')
@@ -416,10 +426,10 @@ class PreviewArticleView(View):
 
         except Admin.DoesNotExist:
             messages.error(request, 'Author not found. Please log in again.')
-            return redirect('admin_login')
+            return redirect('blog:admin_login')
         except Exception as e:
             messages.error(request, f'An error occurred while generating preview: {e}')
-            return redirect('create_article')
+            return redirect('blog:create_article')
 
 
 @admin_required
@@ -459,7 +469,7 @@ def archive_article(request, article_id):
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
 
-    return redirect('admin_dashboard')
+    return redirect('blog:admin_dashboard')
 
 
 @admin_required
@@ -473,7 +483,7 @@ def delete_article(request, article_id):
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
 
-    return redirect('admin_dashboard')
+    return redirect('blog:admin_dashboard')
 
 
 @admin_required
@@ -494,7 +504,7 @@ def toggle_article_status(request, article_id):
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
 
-    return redirect('admin_dashboard')
+    return redirect('blog:admin_dashboard')
 
 
 @method_decorator(admin_required, name='dispatch')
@@ -505,69 +515,68 @@ class ProfileView(View):
         """Display the profile form with the current admin's data."""
         try:
             admin = Admin.objects.get(id=request.session.get('admin_id'))
+            form = ProfileForm(instance=admin)
             context = {
+                'form': form,
                 'admin': admin,
                 'admin_name': admin.name
             }
             return render(request, self.template_name, context)
         except Admin.DoesNotExist:
             messages.error(request, 'Admin profile not found. Please log in again.')
-            return redirect('admin_login')
+            return redirect('blog:admin_login')
 
     def post(self, request):
         """Handle profile update form submission."""
         try:
             admin = Admin.objects.get(id=request.session.get('admin_id'))
+            form = ProfileForm(request.POST, instance=admin)
 
-            # Get form data
-            name = request.POST.get('name', '').strip()
-            email = request.POST.get('email', '').strip()
+            if form.is_valid():
+                # Check if email is being changed and if it's unique
+                new_email = form.cleaned_data.get('email')
+                if new_email != admin.email:
+                    if Admin.objects.filter(email=new_email).exclude(id=admin.id).exists():
+                        messages.error(request, 'This email address is already in use by another account.')
+                        return redirect('blog:admin_profile')
 
-            # Password fields
-            current_password = request.POST.get('current_password', '')
-            new_password = request.POST.get('new_password', '')
-            confirm_password = request.POST.get('confirm_password', '')
+                # Handle password change
+                current_password = form.cleaned_data.get('current_password')
+                new_password = form.cleaned_data.get('new_password')
+                
+                if new_password:
+                    if not current_password:
+                        messages.error(request, 'Current password is required to set a new password.')
+                        return redirect('blog:admin_profile')
+                    
+                    if not admin.check_password(current_password):
+                        messages.error(request, 'Your current password is not correct.')
+                        return redirect('blog:admin_profile')
+                    
+                    admin.set_password(new_password)
+                    messages.success(request, 'Password updated successfully.')
 
-            # Basic validation
-            if not name or not email:
-                messages.error(request, 'Name and email fields cannot be empty.')
-                return redirect('admin_profile')
+                # Save form data
+                admin = form.save()
 
-            # Update name and email
-            admin.name = name
+                # Update session variables
+                request.session['admin_name'] = admin.name
+                request.session['admin_email'] = admin.email
 
-            # Check if email is being changed and if it's unique
-            if email != admin.email:
-                if Admin.objects.filter(email=email).exclude(id=admin.id).exists():
-                    messages.error(request, 'This email address is already in use by another account.')
-                    return redirect('admin_profile')
-                admin.email = email
-
-            # Handle password change
-            if current_password and new_password and confirm_password:
-                if not admin.check_password(current_password):
-                    messages.error(request, 'Your current password is not correct.')
-                    return redirect('admin_profile')
-
-                if new_password != confirm_password:
-                    messages.error(request, 'The new passwords do not match.')
-                    return redirect('admin_profile')
-
-                admin.set_password(new_password)
-                messages.success(request, 'Password updated successfully.')
-
-            admin.save()
-
-            # Update session variables
-            request.session['admin_name'] = admin.name
-            request.session['admin_email'] = admin.email
-
-            messages.success(request, 'Profile updated successfully.')
-            return redirect('admin_profile')
+                messages.success(request, 'Profile updated successfully.')
+                return redirect('blog:admin_profile')
+            else:
+                messages.error(request, 'Please correct the errors in the form.')
+                context = {
+                    'form': form,
+                    'admin': admin,
+                    'admin_name': admin.name
+                }
+                return render(request, self.template_name, context)
 
         except Admin.DoesNotExist:
             messages.error(request, 'Admin profile not found. Please log in again.')
-            return redirect('admin_login')
+            return redirect('blog:admin_login')
 
 
 @admin_required
@@ -576,11 +585,16 @@ def archived_articles_view(request):
     # Get search query if any
     search_query = request.GET.get('search', '').strip()
 
-    authorized_admins = ['Franck Yoteu', 'Arsene Minkam', 'Liboire Minkam', 'Yoteu Rovani']
-    is_authorized_creator = request.session.get('admin_name') in authorized_admins
+    # Role-based authorization
+    is_authorized_creator = False
+    try:
+        current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+        is_authorized_creator = current_admin.role == 'admin'
+    except Admin.DoesNotExist:
+        pass
 
-    # Get all archived articles
-    articles = Article.objects.filter(status='archived').order_by('-updated_at')
+    # Get all archived articles - optimized
+    articles = Article.objects.filter(status='archived').select_related('author', 'showcase_image').prefetch_related('categories').order_by('-updated_at')
 
     # Apply search filter if provided
     if search_query:
@@ -611,51 +625,62 @@ def restore_article(request, article_id):
     except Article.DoesNotExist:
         messages.error(request, 'Article not found or is not archived.')
 
-    return redirect('admin_archived')
+    return redirect('blog:admin_archived')
 
 
 @method_decorator(admin_required, name='dispatch')
 class CreateAdminView(View):
     template_name = 'blog/create_admin.html'
-    authorized_admins = ['Franck Yoteu', 'Arsene Minkam', 'Liboire Minkam', 'Yoteu Rovani']
 
     def dispatch(self, request, *args, **kwargs):
-        """
-        Overrides the default dispatch method to check for authorization
-        before the GET or POST methods are called.
-        """
-        admin_name = request.session.get('admin_name')
-        if admin_name not in self.authorized_admins:
-            messages.error(request, 'You do not have permission to create new admin users.')
-            return redirect('admin_dashboard')
+        """Restrict access to admins only."""
+        try:
+            current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+            if current_admin.role != 'admin':
+                messages.error(request, 'You do not have permission to create new admin users.')
+                return redirect('blog:admin_dashboard')
+        except Admin.DoesNotExist:
+            messages.error(request, 'Please log in again.')
+            return redirect('blog:admin_login')
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request):
         """Display the form to create a new admin."""
-        context = {'admin_name': request.session.get('admin_name')}
+        form = AdminCreationForm()
+        context = {
+            'form': form,
+            'admin_name': request.session.get('admin_name')
+        }
         return render(request, self.template_name, context)
 
     def post(self, request):
         """Handle the creation of a new admin user."""
-        name = request.POST.get('name', '').strip()
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
+        form = AdminCreationForm(request.POST)
 
-        if not name or not email or not password:
-            messages.error(request, 'Please fill in all fields.')
-            return render(request, self.template_name, {'admin_name': request.session.get('admin_name')})
+        if form.is_valid():
+            # Check if email already exists
+            email = form.cleaned_data.get('email')
+            if Admin.objects.filter(email=email).exists():
+                messages.error(request, f'An admin with the email "{email}" already exists.')
+                context = {
+                    'form': form,
+                    'admin_name': request.session.get('admin_name')
+                }
+                return render(request, self.template_name, context)
 
-        if Admin.objects.filter(email=email).exists():
-            messages.error(request, f'An admin with the email "{email}" already exists.')
-            return render(request, self.template_name, {'admin_name': request.session.get('admin_name')})
+            # Save the new admin (form handles password hashing)
+            new_admin = form.save()
 
-        # Create the new admin
-        new_admin = Admin(name=name, email=email)
-        new_admin.set_password(password)
-        new_admin.save()
-
-        messages.success(request, f'Successfully created new admin: {name}.')
-        return redirect('admin_dashboard')
+            role_label = 'Administrator' if new_admin.role == 'admin' else 'Editor'
+            messages.success(request, f'Successfully created new {role_label}: {new_admin.name}.')
+            return redirect('blog:admin_dashboard')
+        else:
+            messages.error(request, 'Please correct the errors in the form.')
+            context = {
+                'form': form,
+                'admin_name': request.session.get('admin_name')
+            }
+            return render(request, self.template_name, context)
 
 
 @admin_required
@@ -663,65 +688,77 @@ def edit_article(request, article_id):
     """Edit an existing article"""
     try:
         article = Article.objects.get(id=article_id)
-        authorized_admins = ['Franck Yoteu', 'Arsene Minkam', 'Liboire Minkam', 'Yoteu Rovani']
-        is_authorized = request.session.get('admin_name') in authorized_admins
-        is_authorized_creator = request.session.get('admin_name') in authorized_admins
-
-        # Only allow author or authorized admins to edit
-        if article.author.id != request.session.get('admin_id') and not is_authorized:
-            messages.error(request, 'You are not authorized to edit this article.')
-            return redirect('admin_dashboard')
-
-        if request.method == 'POST':
-            # Handle form submission
-            title = request.POST.get('title', '').strip()
-            summary = request.POST.get('summary', '').strip()
-            content = request.POST.get('content', '').strip()
-            showcase_image_id = request.POST.get('showcase_image')
-            status = request.POST.get('status', 'draft')
-            is_featured = request.POST.get('is_featured') == 'on'
-
-            if not title or not content:
-                messages.error(request, 'Title and content are required.')
-            else:
-                article.title = title
-                article.summary = summary
-                article.content = content
-                article.status = status
-                article.is_featured = is_featured
-
-                # Handle showcase image
-                if showcase_image_id:
-                    try:
-                        showcase_image = Attachment.objects.get(id=showcase_image_id)
-                        article.showcase_image = showcase_image
-                    except Attachment.DoesNotExist:
-                        article.showcase_image = None
-                else:
-                    article.showcase_image = None
-
-                # Only set published_at if transitioning to published
-                if status == 'published' and not article.published_at:
-                    article.published_at = timezone.now()
-
-                # Clear published_at if reverting to draft
-                if status == 'draft' and article.published_at:
-                    article.published_at = None
-
-                article.save()
-                messages.success(request, f'Article "{title}" updated successfully.')
-                return redirect('view_article', article_id=article.id)
-
-        context = {
-            'article': article,
-            'admin_name': request.session.get('admin_name', 'Admin'),
-            'is_authorized_creator': is_authorized_creator,
-        }
-        return render(request, 'blog/edit_article.html', context)
-
     except Article.DoesNotExist:
         messages.error(request, 'Article not found.')
-        return redirect('admin_dashboard')
+        return redirect('blog:admin_dashboard')
+
+    # Role-based authorization
+    is_authorized = False
+    is_authorized_creator = False
+    try:
+        current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+        is_authorized = current_admin.role == 'admin'
+        is_authorized_creator = is_authorized
+    except Admin.DoesNotExist:
+        pass
+
+    # Only allow author or admins to edit
+    if article.author and article.author.id != request.session.get('admin_id') and not is_authorized:
+        messages.error(request, 'You are not authorized to edit this article.')
+        return redirect('blog:admin_dashboard')
+
+    if request.method == 'POST':
+        # Create form with POST data and instance
+        form = ArticleForm(request.POST, instance=article)
+        
+        # Handle form submission
+        showcase_image_id = request.POST.get('showcase_image')
+
+        # Optionally create a new category (admins only)
+        new_category_name = request.POST.get('new_category', '').strip()
+        if new_category_name and is_authorized:
+            Category.objects.get_or_create(name=new_category_name)
+
+        if form.is_valid():
+            article = form.save(commit=False)
+            
+            # Handle showcase image
+            if showcase_image_id:
+                try:
+                    showcase_image = Attachment.objects.get(id=showcase_image_id)
+                    article.showcase_image = showcase_image
+                except Attachment.DoesNotExist:
+                    article.showcase_image = None
+            else:
+                article.showcase_image = None
+
+            # Only set published_at if transitioning to published
+            if article.status == 'published' and not article.published_at:
+                article.published_at = timezone.now()
+
+            # Clear published_at if reverting to draft
+            if article.status == 'draft' and article.published_at:
+                article.published_at = None
+
+            article.save()
+            form.save_m2m()  # Save many-to-many relationships (categories)
+
+            messages.success(request, f'Article "{article.title}" updated successfully.')
+            return redirect('blog:view_article', article_id=article.id)
+        else:
+            messages.error(request, 'Please correct the errors in the form.')
+    else:
+        # Create form with article instance for GET request
+        form = ArticleForm(instance=article)
+
+    context = {
+        'form': form,
+        'article': article,
+        'admin_name': request.session.get('admin_name', 'Admin'),
+        'is_authorized_creator': is_authorized_creator,
+        'categories': Category.objects.all().order_by('name'),
+    }
+    return render(request, 'blog/edit_article.html', context)
 
 
 @admin_required
@@ -730,7 +767,10 @@ def upload_image_view(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'Invalid request method.'}, status=405)
 
-    files = request.FILES.getlist('images')
+    # Handle both CKEditor 'upload' and custom 'images' field
+    files = request.FILES.getlist('images') or [request.FILES.get('upload')]
+    files = [f for f in files if f]  # Filter out None values
+    
     if not files:
         return JsonResponse({'error': 'No image files found in request.'}, status=400)
 
@@ -799,7 +839,13 @@ def upload_image_view(request):
             'sizes': image_versions # Pass sizes to JS as a bonus
         })
 
-    return JsonResponse({'images': response_images})
+    # Return format compatible with both CKEditor and custom uploads
+    if len(response_images) == 1 and request.FILES.get('upload'):
+        # CKEditor single upload format
+        return JsonResponse({'url': response_images[0]['url']})
+    else:
+        # Multiple images format
+        return JsonResponse({'images': response_images})
 
 
 def associate_attachments_with_article(article, content):
@@ -811,6 +857,212 @@ def associate_attachments_with_article(article, content):
         Attachment.objects.filter(link=url, article__isnull=True).update(article=article)
 
 
+# ===========================
+# Category Management Views
+# ===========================
+
+@admin_required
+def manage_categories(request):
+    """View and manage all categories (admin only)"""
+    try:
+        current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+        if current_admin.role != 'admin':
+            messages.error(request, 'Only admins can manage categories.')
+            return redirect('blog:admin_dashboard')
+    except Admin.DoesNotExist:
+        messages.error(request, 'Admin not found.')
+        return redirect('blog:admin_login')
+
+    categories = Category.objects.annotate(article_count=Count('articles')).order_by('name')
+    form = CategoryForm()
+
+    context = {
+        'categories': categories,
+        'form': form,
+        'admin_name': request.session.get('admin_name', 'Admin'),
+    }
+    return render(request, 'blog/manage_categories.html', context)
+
+
+@admin_required
+def create_category(request):
+    """Create a new category (admin only)"""
+    try:
+        current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+        if current_admin.role != 'admin':
+            messages.error(request, 'Only admins can create categories.')
+            return redirect('blog:admin_dashboard')
+    except Admin.DoesNotExist:
+        messages.error(request, 'Admin not found.')
+        return redirect('blog:admin_login')
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save()
+            messages.success(request, f'Category "{category.name}" created successfully.')
+            return redirect('blog:manage_categories')
+        else:
+            messages.error(request, 'Please correct the errors in the form.')
+    
+    return redirect('blog:manage_categories')
+
+
+@admin_required
+def edit_category(request, category_id):
+    """Edit an existing category (admin only)"""
+    try:
+        current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+        if current_admin.role != 'admin':
+            messages.error(request, 'Only admins can edit categories.')
+            return redirect('blog:admin_dashboard')
+    except Admin.DoesNotExist:
+        messages.error(request, 'Admin not found.')
+        return redirect('blog:admin_login')
+
+    try:
+        category = Category.objects.get(id=category_id)
+    except Category.DoesNotExist:
+        messages.error(request, 'Category not found.')
+        return redirect('blog:manage_categories')
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            category = form.save()
+            messages.success(request, f'Category "{category.name}" updated successfully.')
+            return redirect('blog:manage_categories')
+        else:
+            messages.error(request, 'Please correct the errors in the form.')
+    
+    return redirect('blog:manage_categories')
+
+
+@admin_required
+def delete_category(request, category_id):
+    """Delete a category (admin only)"""
+    try:
+        current_admin = Admin.objects.get(id=request.session.get('admin_id'))
+        if current_admin.role != 'admin':
+            messages.error(request, 'Only admins can delete categories.')
+            return redirect('blog:admin_dashboard')
+    except Admin.DoesNotExist:
+        messages.error(request, 'Admin not found.')
+        return redirect('blog:admin_login')
+
+    try:
+        category = Category.objects.get(id=category_id)
+        category_name = category.name
+        article_count = category.articles.count()
+        
+        if article_count > 0:
+            messages.warning(request, f'Category "{category_name}" is used by {article_count} article(s). It has been removed from those articles.')
+        
+        category.delete()
+        messages.success(request, f'Category "{category_name}" deleted successfully.')
+    except Category.DoesNotExist:
+        messages.error(request, 'Category not found.')
+    
+    return redirect('blog:manage_categories')
+
+
+# ===========================
+# Comment Management Views
+# ===========================
+
+@admin_required
+def manage_comments(request):
+    """View and manage all comments"""
+    # Get filter parameters
+    status_filter = request.GET.get('status', 'all')  # all, pending, approved
+    search_query = request.GET.get('search', '').strip()
+
+    # Base queryset with optimizations
+    comments = Comment.objects.select_related('article', 'article__author').order_by('-created_at')
+
+    # Apply filters
+    if status_filter == 'pending':
+        comments = comments.filter(is_approved=False)
+    elif status_filter == 'approved':
+        comments = comments.filter(is_approved=True)
+
+    # Apply search
+    if search_query:
+        comments = comments.filter(
+            Q(user_name__icontains=search_query) |
+            Q(user_email__icontains=search_query) |
+            Q(content__icontains=search_query) |
+            Q(article__title__icontains=search_query)
+        )
+
+    # Get statistics
+    stats = {
+        'total_comments': Comment.objects.count(),
+        'pending_comments': Comment.objects.filter(is_approved=False).count(),
+        'approved_comments': Comment.objects.filter(is_approved=True).count(),
+    }
+
+    # Pagination
+    paginator = Paginator(comments, 20)  # 20 comments per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'comments': page_obj,
+        'stats': stats,
+        'status_filter': status_filter,
+        'search_query': search_query,
+        'admin_name': request.session.get('admin_name', 'Admin'),
+    }
+    return render(request, 'blog/manage_comments.html', context)
+
+
+@admin_required
+def approve_comment(request, comment_id):
+    """Approve a comment"""
+    if request.method == 'POST':
+        try:
+            comment = Comment.objects.get(id=comment_id)
+            comment.is_approved = True
+            comment.save()
+            messages.success(request, f'Comment by {comment.user_name} approved successfully.')
+        except Comment.DoesNotExist:
+            messages.error(request, 'Comment not found.')
+    
+    return redirect('blog:manage_comments')
+
+
+@admin_required
+def reject_comment(request, comment_id):
+    """Reject (unapprove) a comment"""
+    if request.method == 'POST':
+        try:
+            comment = Comment.objects.get(id=comment_id)
+            comment.is_approved = False
+            comment.save()
+            messages.success(request, f'Comment by {comment.user_name} rejected.')
+        except Comment.DoesNotExist:
+            messages.error(request, 'Comment not found.')
+    
+    return redirect('blog:manage_comments')
+
+
+@admin_required
+def delete_comment(request, comment_id):
+    """Delete a comment permanently"""
+    if request.method == 'POST':
+        try:
+            comment = Comment.objects.get(id=comment_id)
+            user_name = comment.user_name
+            comment.delete()
+            messages.success(request, f'Comment by {user_name} deleted successfully.')
+        except Comment.DoesNotExist:
+            messages.error(request, 'Comment not found.')
+    
+    return redirect('blog:manage_comments')
+
+
+@csrf_protect
 def subscribe_newsletter(request):
     """Handle newsletter subscription"""
     if request.method == 'POST':
@@ -819,22 +1071,23 @@ def subscribe_newsletter(request):
 
         if not name or not email:
             messages.error(request, 'Please provide both name and email.')
-            return redirect('blog_home')
+            return redirect('blog:blog_home')
 
         # Check if already subscribed
         if User.objects.filter(email=email).exists():
             messages.info(request, 'You are already subscribed to our newsletter.')
-            return redirect('blog_home')
+            return redirect('blog:blog_home')
 
         # Create new subscriber
         User.objects.create(name=name, email=email)
         messages.success(request, 'Thank you for subscribing to our newsletter!')
 
-        return redirect('blog_home')
+        return redirect('blog:blog_home')
 
-    return redirect('blog_home')
+    return redirect('blog:blog_home')
 
 
+@csrf_protect
 def like_article(request, article_id):
     """Handle article likes"""
     if request.method == 'POST':
@@ -855,26 +1108,26 @@ def like_article(request, article_id):
             # Check if already liked
             if Like.objects.filter(article=article, user=user).exists():
                 messages.info(request, 'You have already liked this article.')
-                return redirect('public_article', slug=article.slug)
+                return redirect('blog:public_article', slug=article.slug)
 
             # Create like
             Like.objects.create(article=article, user=user)
             messages.success(request, 'Thank you for liking this article!')
 
-            return redirect('public_article', slug=article.slug)
+            return redirect('blog:public_article', slug=article.slug)
 
         except Article.DoesNotExist:
             messages.error(request, 'Article not found.')
-            return redirect('blog_home')
+            return redirect('blog:blog_home')
 
-    return redirect('blog_home')
+    return redirect('blog:blog_home')
 
 
 def load_more_articles(request):
     """AJAX endpoint to load more articles"""
     if request.method == 'GET':
         page = request.GET.get('page', 1)
-        articles = Article.objects.filter(status='published').order_by('-published_at')
+        articles = Article.objects.filter(status='published').select_related('author', 'showcase_image').prefetch_related('categories', 'likes', 'comments').order_by('-published_at')
 
         paginator = Paginator(articles, 10)  # 10 articles per page
         try:
