@@ -27,12 +27,13 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-please-change-me')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
-    '192.168.124.5',
-    'localhost', 
-    '127.0.0.1', 
-    'gsblesambassadeurs.onrender.com',
-    'gsblesambassadeurs.com',
-    'www.gsblesambassadeurs.com'
+    # '192.168.124.5',
+    # 'localhost', 
+    # '127.0.0.1', 
+    # 'gsblesambassadeurs.onrender.com',
+    # 'gsblesambassadeurs.com',
+    # 'www.gsblesambassadeurs.com'
+    '*'
 ]
 
 SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
@@ -72,6 +73,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_browser_reload.middleware.BrowserReloadMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 
@@ -177,7 +179,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
     p for p in [
@@ -298,5 +300,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_PASSWORD = 'your-app-password'  # Use an app-specific password
 
 # Email settings
-DEFAULT_FROM_EMAIL = 'noreply@ambassadeurs.edu'
-CONTACT_EMAIL = 'contact@ambassadeurs.edu'  # Where contact form messages will be sent
+DEFAULT_FROM_EMAIL = 'noreply@ambassadeurs.com'
+CONTACT_EMAIL = 'contact@ambassadeurs.com'  
