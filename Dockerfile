@@ -1,22 +1,26 @@
 # Use official Python image
 FROM python:3.12-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
 
-# Set work directory
+# Set working directory
 WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy project
+# Copy project files
 COPY . .
 
-# Run collectstatic (optional)
-RUN python manage.py collectstatic --noinput
+# Collect static files (optional)
+RUN python manage.py collectstatic --noinput || true
 
-# Run gunicorn
+# Expose the port to Railway
+EXPOSE $PORT
+
+# Start Gunicorn and bind to $PORT
 CMD ["sh", "-c", "gunicorn daycare.wsgi:application --bind 0.0.0.0:$PORT"]
