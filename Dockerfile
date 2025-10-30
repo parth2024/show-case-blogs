@@ -19,4 +19,4 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 
 # Run gunicorn
-CMD ["gunicorn", "daycare.wsgi:application", "--bind", "0.0.0.0:8080"]
+CMD ["sh", "-c", "gunicorn daycare.wsgi:application --bind 0.0.0.0:$PORT"]
