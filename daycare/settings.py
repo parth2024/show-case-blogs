@@ -27,19 +27,16 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-please-change-me')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
-    # '192.168.124.5',
-    # 'localhost', 
-    # '127.0.0.1', 
-    # 'gsblesambassadeurs.onrender.com',
-    # 'gsblesambassadeurs.com',
-    # 'www.gsblesambassadeurs.com'
-    '*'
+    '.railway.app', 
+    'localhost', 
+    '127.0.0.1'
 ]
 
-SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False') == 'True'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG
+
 
 # Application definition
 
@@ -54,10 +51,9 @@ INSTALLED_APPS = [
     'daycare_ambassadeurs',
     'blog',
     'nursery',
-    'django_browser_reload',
     'tailwind',
     'django_ckeditor_5',
-]
+] 
 
 TAILWIND_APP_NAME = 'theme'
 
