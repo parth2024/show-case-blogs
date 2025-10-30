@@ -7,10 +7,3 @@ node_modules/
 .idea/
 .vscode/
 
-# CRITICAL: Exclude generated/compiled files
-staticfiles/
-__pycache__/
-*.sqlite3
-
-# CRITICAL: Exclude user-uploaded files (should be on S3/cloud storage)
-media/
