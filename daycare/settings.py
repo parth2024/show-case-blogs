@@ -27,7 +27,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-please-change-me')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
-    '.railway.app', 
+    '*',
+    '.up.railway.app', 
+    'gsblesambassadeurs.up.railway.app',
     'localhost', 
     '127.0.0.1'
 ]
