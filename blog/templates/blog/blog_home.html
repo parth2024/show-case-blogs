@@ -295,7 +295,7 @@
                     required
                     class="flex-1 px-6 py-4 rounded-lg border-0 focus:ring-2 focus:ring-white/50 focus:outline-none"
                 >
-                <button type="submit" class="bg-white text-primary font-bold px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap">
+                <button type="submit" class="bg-purple-600 text-white font-bold px-8 py-4 rounded-lg hover:bg-purple-800 transition-colors whitespace-nowrap">
                     Subscribe
                 </button>
             </form>
@@ -306,7 +306,7 @@
 <!-- Footer -->
 <footer class="bg-gray-900 text-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Quick Links -->
             <div>
                 <h4 class="text-lg font-heading font-semibold mb-4">Quick Links</h4>
@@ -346,20 +346,6 @@
                         <i class="fab fa-instagram text-2xl"></i>
                     </a>
                 </div>
-            </div>
-
-            <!-- Newsletter -->
-            <div>
-                <h4 class="text-lg font-heading font-semibold mb-4">Newsletter</h4>
-                <p class="text-sm text-gray-400 mb-4">Stay informed with the latest news</p>
-                <form action="{% url 'blog:subscribe_newsletter' %}" method="POST" class="flex flex-col space-y-2">
-                    {% csrf_token %}
-                    <input type="text" name="name" placeholder="Your name" class="px-4 py-2 rounded-md text-gray-800 focus:outline-none bg-white">
-                    <div class="flex flex-col sm:flex-row">
-                        <input type="email" name="email" placeholder="Your email" class="flex-grow bg-white px-4 py-2 rounded-md sm:rounded-r-none text-gray-800 focus:outline-none">
-                        <button type="submit" class="bg-secondary text-white px-4 py-2 rounded-md sm:rounded-l-none mt-2 sm:mt-0 font-heading hover:bg-secondary-dark transition-colors">Subscribe</button>
-                    </div>
-                </form>
             </div>
         </div>
 

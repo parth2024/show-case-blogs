@@ -212,12 +212,12 @@
                 </div>
             </div>
 
-            <button id="mobile-menu-button" class="flex items-center space-x-2 text-lime-700 hover:text-lime-500 focus:outline-none">
+            <!-- <button id="mobile-menu-button" class="flex items-center space-x-2 text-lime-700 hover:text-lime-500 focus:outline-none">
                 <span class="hidden md:block text-lg">Menu</span>
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
-            </button>
+            </button> -->
         </div>
     </nav>
 
@@ -551,7 +551,7 @@
   </div>
 </section>
 
-<!-- Download Brochure Section -->
+<!-- Download Brochure Section
 <section class="py-16 bg-white fade-in-section">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
@@ -587,21 +587,21 @@
             </div>
         </div>
     </div>
-</section>
+</section> -->
 
 <!-- Contact Section with image carousel -->
 <section id="contact" class="py-16 gradient-bg fade-in-section">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="font-viga text-3xl md:text-4xl text-lime-800 mb-4">Ready to Join Our Family?</h2>
+            <h2 class="font-viga text-3xl md:text-4xl text-lime-800 mb-4">Prêt à Rejoindre Notre Famille ?</h2>
             <div class="w-20 h-1 bg-lime-600 mx-auto"></div>
             <p class="font-radio text-lg text-gray-700 max-w-2xl mx-auto mt-4">
-                Contact us today to schedule a visit and discover how our nurturing environment can support your child's early development
+                Contactez-nous dès aujourd'hui pour planifier une visite et découvrir comment notre environnement bienveillant peut soutenir le développement précoce de votre enfant
             </p>
         </div>
 
-        <div class="max-w-4xl mx-auto">
-            <div class="flex justify-center">
+        <div class="max-w-3xl mx-auto">
+            <div class="flex flex-col justify-center">
                     <div class="carousel contact-carousel" id="contactCarousel">
                         <div class="carousel-item">
                             <img src="{% static 'images/BeFunky-collage-daycare-environement.png' %}" alt="Daycare Environment" class="rounded-lg shadow-lg w-full h-full object-cover" loading="lazy">
@@ -625,6 +625,11 @@
                         <span class="carousel-dot" data-slide="2"></span>
                         <span class="carousel-dot" data-slide="3"></span>
                         <span class="carousel-dot" data-slide="4"></span>
+                    </div>
+                    <div class="text-center">
+                        <button type="button" class="mt-8 mx-auto bg-lime-500 hover:bg-lime-600 text-white px-8 py-3 rounded-full font-viga text-lg transition-colors shadow-lg inline-flex items-center mx-auto " onclick="{window.location.href='{% url 'nursery:contact' %}';}">
+                            Contactez-nous
+                        </button>
                     </div>
             </div>
         </div>
