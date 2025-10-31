@@ -27,7 +27,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-please-change-me')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = [
-    '.railway.app', 
+    '*',
+    '.up.railway.app', 
+    'gsblesambassadeurs.up.railway.app',
     'localhost', 
     '127.0.0.1'
 ]
@@ -41,6 +43,7 @@ SECURE_SSL_REDIRECT = not DEBUG
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,6 +54,7 @@ INSTALLED_APPS = [
     'daycare_ambassadeurs',
     'blog',
     'nursery',
+    'primaire',
     'tailwind',
     'django_ckeditor_5',
 ] 
